@@ -9,7 +9,7 @@ import image from "../Asessts/image.webp";
 function About() {
   return (
     <div>
-    <div className="grid grid-cols-3 gap-4 ml-10 mr-10">
+    <div className="grid grid-cols-3 gap-4 ml-10 mr-10 ">
       <div className="col-span-2 backdrop-filter backdrop-blur-lg bg-white/5 border border-white/10 p-6 shadow-xl flex flex-col justify-start ">
         <PiShareNetworkBold className="text-5xl text-[#39FF14] mb-4" />
         <h2 className="text-2xl font-bold text-white mb-2">

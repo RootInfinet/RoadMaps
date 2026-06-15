@@ -32,7 +32,7 @@ function NavBar() {
           </li>
 
           <li>
-            <button className="bg-[#39FF14] hover:bg-green-600 text-black font-semibold rounded-lg transition duration-300">
+            <button className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold  transition duration-300">
               <a href="/login" className="block px-6 py-2">
                 Login
               </a>
@@ -40,7 +40,7 @@ function NavBar() {
           </li>
 
           <li>
-            <button className="bg-[#39FF14] hover:bg-green-600 text-black font-semibold rounded-lg transition duration-300">
+            <button className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold transition duration-300">
               <a href="/signup" className="block px-6 py-2">
                 Signup
               </a>
