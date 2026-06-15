@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  isSubscribed  Boolean  @default(false) 
+}
+model Roadmap {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  isPremium   Boolean  @default(false) 
+  steps       Step[]
+}
+
+model Step {
+  id          Int      @id @default(autoincrement())
+  title       String
+  roadmapId   Int
+  roadmap     Roadmap  @relation(fields: [roadmapId], references: [id])
+}
