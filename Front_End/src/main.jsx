@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client'
 import {BrowserRouter , Routes , Route} from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import Login from './pages/Login.jsx'
-import Signup from './pages/Signup.jsx'
-import Profile from './pages/Profile.jsx'
-import Roodmaps from './pages/Roodmaps.jsx'
+import Login from './Pages/Login.jsx'
+import Signup from './Pages/Signup.jsx'
+import Profile from './Pages/Profile.jsx'
+import Roodmaps from './Pages/Roodmaps.jsx'
 import { Provider } from 'react-redux';
 // import  store  from './Store/Store.js';
 createRoot(document.getElementById('root')).render(
