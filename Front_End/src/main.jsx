@@ -8,6 +8,7 @@ import Signup from './Pages/Signup.jsx'
 import Profile from './Pages/Profile.jsx'
 import Roodmaps from './Pages/Roodmaps.jsx'
 import { Provider } from 'react-redux';
+import TermsAndPrivacy from './Pages/Terms.jsx';
 // import  store  from './Store/Store.js';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/roodmaps" element={<Roodmaps />} />
+          <Route path="/terms"  element={<TermsAndPrivacy/>} />
         </Routes>
       </BrowserRouter>
     {/* </Provider> */}

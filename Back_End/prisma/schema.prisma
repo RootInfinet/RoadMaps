@@ -27,3 +27,13 @@ model Step {
   roadmapId   Int
   roadmap     Roadmap  @relation(fields: [roadmapId], references: [id])
 }
+model UserProgress {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  stepId    Int
+  isDone    Boolean @default(false)
+  user      User    @relation(fields: [userId], references: [id])
+  step      Step    @relation(fields: [stepId], references: [id])
+  
+  @@unique([userId, stepId]) 
+}
