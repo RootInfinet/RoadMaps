@@ -2,6 +2,7 @@ const express = require('express')
 const { PrismaClient } = require('@prisma/client');
 const helmet = require('helmet');
 const authRoutes = require('./src/Router/AuthRoute');
+const roadmapRoutes = require('./src/Router/RoadmapRoute');
 const cookieParser = require('cookie-parser');
 const cors = require('cors')
 require('dotenv').config()
@@ -10,9 +11,13 @@ require('dotenv').config()
 const prisma = new PrismaClient();
 const app = express()
 app.use(express.json())
-app.use(cors())
 app.use(cookieParser())
 app.use(helmet());
+
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true 
+}));
 
 app.use('/', authRoutes);
 

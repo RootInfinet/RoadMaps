@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 function Hero() {
     return (
@@ -17,9 +18,9 @@ function Hero() {
             <button className="mt-8 bg-[#39FF14] px-13 py-3 text-black hover:bg-[#0A0A0A] hover:text-[#39FF14] duration-300 border hover:border-[#39FF14] cursor-pointer">
                 Get Started
             </button>
-            <button className="px-3 py-2 mt-8 bg-[#0A0A0A] text-[#00FFFF] duration-300 border border-[#00FFFF] cursor-pointer">
+            <Link to="/roadmaps" className="px-3 py-2 mt-8 bg-[#0A0A0A] text-[#00FFFF] duration-300 border border-[#00FFFF] cursor-pointer inline-block">
             Roadmaps
-            </button>
+            </Link>
             </div>
         </div>
     )

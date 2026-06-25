@@ -7,7 +7,7 @@ function Footer() {
   <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
     
     <div className="flex items-center gap-2">
-      <span className="text-white font-bold tracking-tight">RoadMaps</span>
+      <span className="text-white font-bold tracking-tight">RoadMap</span>
       <span className="text-white/30 text-xs">© 2026</span>
     </div>
 

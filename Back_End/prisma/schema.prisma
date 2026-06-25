@@ -8,32 +8,39 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique
-  password      String
-  isSubscribed  Boolean  @default(false) 
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  password     String
+  userProgress UserProgress[]
 }
+
 model Roadmap {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  isPremium   Boolean  @default(false) 
-  steps       Step[]
+  id           Int            @id @default(autoincrement())
+  title        String
+  description  String
+  isPremium    Boolean        @default(false)
+  steps        Step[]
+  userProgress UserProgress[]
 }
 
 model Step {
-  id          Int      @id @default(autoincrement())
-  title       String
-  roadmapId   Int
-  roadmap     Roadmap  @relation(fields: [roadmapId], references: [id])
+  id           Int            @id @default(autoincrement())
+  title        String
+  roadmapId    Int
+  roadmap      Roadmap        @relation(fields: [roadmapId], references: [id])
+  userProgress UserProgress[]
 }
+
 model UserProgress {
   id        Int     @id @default(autoincrement())
   userId    Int
   stepId    Int
+  roadmapId Int
   isDone    Boolean @default(false)
   user      User    @relation(fields: [userId], references: [id])
   step      Step    @relation(fields: [stepId], references: [id])
-  
-  @@unique([userId, stepId]) 
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
+
+  @@unique([userId, stepId])
 }

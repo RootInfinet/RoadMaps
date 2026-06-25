@@ -1,10 +1,15 @@
 import React from "react";
 import { IoIosLock } from "react-icons/io";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 function NavBar() {
+  const { isAuthenticated } = useSelector((state) => state.user);
+
   return (
     <header className="flex items-center justify-evenly flex-row bg-[#141414] h-22 fixed w-full px-10 z-100">
       <h1 className="text-[#39FF14] text-5xl font-extrabold ">
-        RoadMaps
+        <Link to="/">RoadMap</Link>
       </h1>
       <nav className="flex items-center justify-center gap-5">
         <ul className="flex space-x-8 items-center justify-center">
@@ -23,29 +28,44 @@ function NavBar() {
             Subscribe (soon)
           </li>
           <li className="hover:text-green-500 transition duration-300">
-            <a
-              href="/roodmaps"
+            <Link
+              to="/roadmaps"
               className="text-[#BACCB0] hover:text-[#39FF14] transition duration-300"
             >
               Roadmaps
-            </a>
+            </Link>
           </li>
 
-          <li>
-            <button className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold  transition duration-300">
-              <a href="/login" className="block px-6 py-2">
-                Login
-              </a>
-            </button>
-          </li>
+          {isAuthenticated ? (
+            <li>
+              <Link
+                to="/profile"
+                className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold transition duration-300 block px-6 py-2"
+              >
+                Profile
+              </Link>
+            </li>
+          ) : (
+            <>
+              <li>
+                <Link
+                  to="/login"
+                  className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold transition duration-300 block px-6 py-2"
+                >
+                  Login
+                </Link>
+              </li>
 
-          <li>
-            <button className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold transition duration-300">
-              <a href="/signup" className="block px-6 py-2">
-                Signup
-              </a>
-            </button>
-          </li>
+              <li>
+                <Link
+                  to="/signup"
+                  className="bg-[#39FF14] hover:bg-[#141414] border hover:border-[#39FF14] hover:text-white text-black font-semibold transition duration-300 block px-6 py-2"
+                >
+                  Signup
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
     </header>

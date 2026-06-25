@@ -1,14 +1,13 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
-const { response } = require('express');
 const prisma = new PrismaClient();
 
 const register = async(req,res) => {
     try{
     const {email,password,name} = req.body;
 
-    const existingUser = prisma.user.findUnique({
+    const existingUser = await prisma.user.findUnique({
         where:{email:email}
     })
 
@@ -27,15 +26,16 @@ const register = async(req,res) => {
             isSubscribed:false
         }
     });
-    res.status(200).json({message:`User Created Succeful Welcom ${name} to Roadmaps World`})
-}catch(error){
-    res.status(500).json({message:"Internal server error"})
+    res.status(200).json({message:`User Created Successfully. Welcome ${name} to RoadMap`})
+} catch(error) {
+    console.log(error); 
+    res.status(500).json({message: error.message}); 
 }
 };
 
 const login = async(req,res) => {
     const{email,password} = req.body;
-    const user = prisma.user.findUnique({where:{email}})
+    const user = await prisma.user.findUnique({where:{email}})
     if (!user) return res.status(404).json({message:"User Not Found"})
     const isMatch = await bcrypt.compare(password , user.password)
     if(!isMatch) return res.status(404).json({message:"Password is invalied"})
@@ -49,5 +49,29 @@ res.cookie('token', token, {
   secure: false,   
   sameSite: 'Strict'
 })
-}
-module.exports = { register, login };
+return res.status(200).json({
+  message: "Login Successful",
+  user: {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isSubscribed: user.isSubscribed,
+  },
+});
+};
+
+const logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "Strict",
+  });
+
+  return res.status(200).json({ message: "Logged out successfully" });
+};
+
+const getMe = async (req, res) => {
+  return res.status(200).json({ user: req.user });
+};
+
+module.exports = { register, login, logout, getMe };
