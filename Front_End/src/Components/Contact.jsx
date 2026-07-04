@@ -11,7 +11,7 @@ function Contact
     </h2>
     
     <p className="text-gray-400 text-center max-w-md">
-      Join 5,000+ developers building the future on RootInfinite. No credit card required to start.
+      Join 5,000+ developers building the future on RoadMap-Tech. No credit card required to start.
     </p>
 
     <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-lg">

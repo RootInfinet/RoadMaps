@@ -16,12 +16,11 @@ model User {
 }
 
 model Roadmap {
-  id           Int            @id @default(autoincrement())
-  title        String
-  description  String
-  isPremium    Boolean        @default(false)
-  steps        Step[]
-  userProgress UserProgress[]
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  isPremium   Boolean  @default(false)
+  steps       Step[]
 }
 
 model Step {
@@ -32,15 +31,19 @@ model Step {
   userProgress UserProgress[]
 }
 
+
 model UserProgress {
   id        Int     @id @default(autoincrement())
   userId    Int
-  stepId    Int
-  roadmapId Int
+  status    String  @default("in-progress") 
   isDone    Boolean @default(false)
+  
+  roadmapId Int
+
   user      User    @relation(fields: [userId], references: [id])
-  step      Step    @relation(fields: [stepId], references: [id])
-  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
+  
+  stepId    Int?   
+  step      Step?   @relation(fields: [stepId], references: [id])
 
   @@unique([userId, stepId])
 }

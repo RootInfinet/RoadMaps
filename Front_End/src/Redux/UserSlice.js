@@ -28,8 +28,9 @@ const userSlice = createSlice({
     setAuthChecked: (state) => {
       state.isAuthChecked = true;
     },
-    updateUser: (state, action) => {
+    setUser: (state, action) => {
       state.user = action.payload;
+      state.isAuthenticated = !!action.payload;
     },
   },
 });
@@ -40,6 +41,6 @@ export const {
   setRoadmaps,
   setLoading,
   setAuthChecked,
-  updateUser,
+  setUser,
 } = userSlice.actions;
 export default userSlice.reducer;

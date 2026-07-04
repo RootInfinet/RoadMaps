@@ -9,7 +9,7 @@ import { loginSuccess } from "../Redux/UserSlice";
 function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-
+const navigate = useNavigate()
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
@@ -18,23 +18,28 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:3000/login", credentials, {
+      const response = await axios.post("http://localhost:5000/login", credentials, {
         withCredentials: true,
       });
+      if(response.status === 200){
       alert("System Access Granted!");
+      navigate("/profile")
+    }
     } catch (error) {
       alert("Access Denied: Check your credentials");
     } finally {
       setLoading(false);
     }
+    
   };
   return (
     <div className="bg-[#0A0A0A] min-h-screen text-white font-sans relative overflow-hidden">
       <div className="absolute top-50 -left-10 bg-[#37ff1425] w-50 h-50 rounded-full blur-3xl"></div>
       <div className="absolute top-50 -right-10 bg-[#00ffff38] w-50 h-50 rounded-full blur-3xl"></div>
       <div className="flex flex-row justify-between items-center pt-5 ml-20 mr-20 pb-5">
-        <h2 className="text-[#39FF14] text-3xl font-bold">RoadMap</h2>
-
+<h1 className="text-[#39FF14] text-5xl font-extrabold ">
+        <Link to="/">RoadMap</Link>
+      </h1>
         <p className="text-[#BACCB0]">HELP_CENTER</p>
       </div>
       <div className="flex flex-col justify-center items-center">

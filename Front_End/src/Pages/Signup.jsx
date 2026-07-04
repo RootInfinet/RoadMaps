@@ -13,37 +13,12 @@ function Signup() {
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await axios.post("http://localhost:3000/register", credentials, {
-        withCredentials: true,
-      });
-      alert("System Access Granted!");
-      navigate("/login");
-    } catch (err) {
-      alert("Access Denied: Check your credentials");
-    } finally {
-      setLoading(false);
-    }
-  };const [credentials, setCredentials] = useState({
-    email: "",
-    password: "",
-    name: "",
-  });
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
   const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("/api/auth/register", credentials);
+      const response = await axios.post("http://localhost:5000/register", credentials);
       if (response.status === 200) {
         console.log("Access Granted, Navigating...");
         navigate("/login");
@@ -60,8 +35,9 @@ function Signup() {
       <div className="absolute top-50 -left-10 bg-[#37ff1425] w-50 h-50 rounded-full blur-3xl"></div>
       <div className="absolute top-50 -right-10 bg-[#00ffff38] w-50 h-50 rounded-full blur-3xl"></div>
       <div className="flex flex-row justify-between items-center pt-5 ml-20 mr-20 pb-5">
-        <h2 className="text-[#39FF14] text-3xl font-bold">RoadMap</h2>
-
+<h1 className="text-[#39FF14] text-5xl font-extrabold ">
+        <Link to="/">RoadMap</Link>
+      </h1>
         <p className="text-[#BACCB0]">HELP_CENTER</p>
       </div>
       <div className="flex flex-col justify-center items-center">
