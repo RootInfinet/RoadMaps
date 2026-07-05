@@ -29,10 +29,10 @@ function Profile() {
     } catch (error) {
 console.error(error);
 };
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  }
+useEffect(() => {
+  checkAuth();
+}, []);
 
   useEffect(() => {
     if (user) setFormData(prev => ({ ...prev, name: user.name }));
