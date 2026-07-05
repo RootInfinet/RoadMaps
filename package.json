@@ -1,0 +1,8 @@
+{
+  "name": "roadmaps-root",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd Back_End && npm install && npx prisma generate",
+    "start": "cd Back_End && node server.js"
+  }
+}
