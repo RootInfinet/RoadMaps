@@ -16,28 +16,34 @@ function Profile() {
   const [roadmaps, setRoadmaps] = useState([]);
 
   const checkAuth = async () => {
-    try {
-      const response = await api.get("/me", { withCredentials: true });
-      if (response.status === 200) {
-        dispatch(setUser(response.data.user));
-      }
+  try {
+    const response = await api.get("/me", { withCredentials: true });
+    if (response.status === 200) {
+      dispatch(setUser(response.data.user));
+    }
 
-      const roadmapsRes = await api.get("/my-roadmaps", { withCredentials: true });
-      if (roadmapsRes.status === 200) {
-        setRoadmaps(roadmapsRes.data.roadmaps || []); 
-      }
-    } catch (error) {
-console.error(error);
-};
+    const roadmapsRes = await api.get("/my-roadmaps", { withCredentials: true });
+    if (roadmapsRes.status === 200) {
+      setRoadmaps(roadmapsRes.data.roadmaps || []);
+    }
+  } catch (error) {
+    console.error(error);
+    navigate("/login");
   }
+};
+
 useEffect(() => {
   checkAuth();
 }, []);
 
-  useEffect(() => {
-    if (user) setFormData(prev => ({ ...prev, name: user.name }));
-  }, [user]);
-
+useEffect(() => {
+  if (user && user.name) {
+    setFormData(prev => {
+      if (prev.name === user.name) return prev; 
+      return { ...prev, name: user.name };
+    });
+  }
+}, [user]);
   const handleUpdate = async () => {
     try {
       const res = await api.put("/update", formData, { withCredentials: true });
@@ -173,6 +179,5 @@ useEffect(() => {
       </main>
     </div>
   );
-}
 }
 export default Profile;
