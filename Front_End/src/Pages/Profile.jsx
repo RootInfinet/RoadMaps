@@ -28,7 +28,6 @@ function Profile() {
       }
     } catch (error) {
 console.error(error);
-alert("Internal Server Error")
 };
 
   useEffect(() => {
