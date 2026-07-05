@@ -27,9 +27,9 @@ function Profile() {
         setRoadmaps(roadmapsRes.data.roadmaps || []); 
       }
     } catch (error) {
-      navigate("/login");
-    }
-  };
+console.error(error);
+alert("Internal Server Error")
+};
 
   useEffect(() => {
     checkAuth();
