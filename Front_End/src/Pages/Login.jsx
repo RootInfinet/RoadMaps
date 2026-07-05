@@ -26,6 +26,7 @@ function Login() {
       });
       if (response.status === 200) {
         alert("System Access Granted!");
+        localStorage.setItem("isLoggedIn", "true");
         dispatch(loginSuccess(response.data.user));
         navigate("/profile");
       }
