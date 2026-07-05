@@ -6,13 +6,13 @@ import Contact from "./Components/Contact";
 import Footer from "./Components/Footer";
 function App() {
   return (
-    <div className="bg-[#0A0A0A] min-h-screen text-white font-sans container mx-auto">
+    <div className="bg-[#0A0A0A] min-h-screen text-white font-sans w-full mx-auto">
       <main>
         <NavBar />
         <Hero />
-        <div className="h-0.5 w-full bg-linear-to-r from-black to-[#39FF14] mt-40 mb-40"></div>
+        <div className="h-0.5 w-full bg-linear-to-r from-black to-[#39FF14] mt-16 sm:mt-24 md:mt-40 mb-16 sm:mb-24 md:mb-40"></div>
         <About />
-        <div className="h-0.5 w-full bg-linear-to-r from-black to-[#39FF14] mt-40 mb-40"></div>
+        <div className="h-0.5 w-full bg-linear-to-r from-black to-[#39FF14] mt-16 sm:mt-24 md:mt-40 mb-16 sm:mb-24 md:mb-40"></div>
         <Contact />
         <Footer />
       </main>

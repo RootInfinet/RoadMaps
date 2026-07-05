@@ -8,13 +8,14 @@ import Signup from "./Pages/Signup.jsx";
 import Profile from "./Pages/Profile.jsx";
 import Roadmaps from "./Pages/Roadmaps.jsx";
 import Roadmapview from "./Pages/Roadmapview.jsx";
-import { Provider } from "react-redux";
 import TermsAndPrivacy from "./Pages/Terms.jsx";
-import store from "./Store/Store.js";
-
+import { Provider } from 'react-redux';
+import { store, persistor } from './Store/Store.js';
+import { PersistGate } from 'redux-persist/integration/react';
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />} />
@@ -26,6 +27,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/terms" element={<TermsAndPrivacy />} />
           </Routes>
         </BrowserRouter>
+      </PersistGate>
     </Provider>
   </StrictMode>
 );

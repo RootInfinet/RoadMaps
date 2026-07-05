@@ -8,42 +8,38 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  name         String
-  email        String         @unique
-  password     String
-  userProgress UserProgress[]
+  id          Int              @id @default(autoincrement())
+  name        String
+  email       String           @unique
+  password    String
+  enrollments UserEnrollment[]
 }
 
 model Roadmap {
-  id          Int      @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   title       String
   description String
-  isPremium   Boolean  @default(false)
+  isPremium   Boolean          @default(false)
   steps       Step[]
+  enrollments UserEnrollment[]
 }
 
 model Step {
-  id           Int            @id @default(autoincrement())
-  title        String
-  roadmapId    Int
-  roadmap      Roadmap        @relation(fields: [roadmapId], references: [id])
-  userProgress UserProgress[]
+  id        Int     @id @default(autoincrement())
+  title     String
+  roadmapId Int
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
 }
 
+model UserEnrollment {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  roadmapId      Int
+  status         String   @default("in-progress")
+  completedSteps Json     @default("[]")
+  enrolledAt     DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+  roadmap        Roadmap  @relation(fields: [roadmapId], references: [id])
 
-model UserProgress {
-  id        Int     @id @default(autoincrement())
-  userId    Int
-  status    String  @default("in-progress") 
-  isDone    Boolean @default(false)
-  
-  roadmapId Int
-
-  user      User    @relation(fields: [userId], references: [id])
-  
-  stepId    Int?   
-  step      Step?   @relation(fields: [stepId], references: [id])
-
-  @@unique([userId, stepId])
+  @@unique([userId, roadmapId])
 }
