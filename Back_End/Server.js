@@ -22,6 +22,11 @@ app.use(helmet({
 
 app.use("/", authRoutes);
 
+const path = require("path");
+app.use(express.static(path.join(__dirname, "../Front_End/dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Front_End/dist/index.html"));
+});
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
