@@ -175,5 +175,5 @@ alert("Internal Server Error")
     </div>
   );
 }
-
+}
 export default Profile;
