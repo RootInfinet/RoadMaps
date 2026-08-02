@@ -8,15 +8,18 @@ const userSlice = createSlice({
     roadmaps: [],
     isLoading: false,
     isAuthChecked: false,
+    role: "user",
   },
   reducers: {
     loginSuccess: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      state.role = action.payload?.role || 'user';
     },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      state.role = null;
       state.roadmaps = [];
     },
     setRoadmaps: (state, action) => {

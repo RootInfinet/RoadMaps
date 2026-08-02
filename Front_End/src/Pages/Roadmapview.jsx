@@ -92,29 +92,30 @@ function Roadmapview() {
     event.preventDefault();
     setIsSending(true);
 
-    const templateParams = {
-      user_name: currentUser.name,
-      user_email: currentUser.email,
-      roadmap_title: ROADMAP_TITLE,
-      submission_type: "FINAL GRADUATION (BOTH PROJECTS)",
-      portfolio_5_phases_url: projectOneUrl,
-      final_independent_url: projectTwoUrl,
+    const requestData = {
+      userId: currentUser.id,      
+      roadmapId: ROADMAP_ID,       
+      projects: [
+        {
+          projectTitle: "Portfolio / 5 Phases Project",
+          projectUrl: projectOneUrl
+        },
+        {
+          projectTitle: "Final Independent Graduation Project",
+          projectUrl: projectTwoUrl
+        }
+      ]
     };
 
     try {
-      await api.post("/submit-project", {
-        Project_One_Url: templateParams.portfolio_5_phases_url,
-        Project_Two_Url: templateParams.final_independent_url,
-        email: templateParams.user_email,
-        name: templateParams.user_name,
-        roadmap_title: templateParams.roadmap_title,
-      });
-      console.log("Email request sent to backend successfully!");
-      alert("🎉 CONGRATULATIONS! Both of your projects have been successfully submitted for graduation review.");
+      await api.post("/submit-projects", requestData);
+
+      console.log("Projects submitted to database successfully!");
+      alert("🎉 CONGRATULATIONS! Your projects have been successfully submitted for review.");
       setIsSubmitModalOpen(false);
     } catch (error) {
-      console.error("Failed to send email request:", error);
-      alert("Failed to submit graduation projects. Please try again.");
+      console.error("Failed to submit projects:", error);
+      alert("Failed to submit projects. Please try again.");
     } finally {
       setIsSending(false);
     }

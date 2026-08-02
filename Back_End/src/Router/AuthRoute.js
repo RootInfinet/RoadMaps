@@ -1,10 +1,9 @@
 const express = require("express");
 const authController = require("../Controller/AuthController");
 const progressController = require("../Controller/ProgressController");
-const submitController = require("../Controller/SubmitController");
 const router = express.Router();
 const { validate, urlSchema } = require("../middlewares/validate");
-const { middleware } = require("../middlewares/auth");
+const { middleware,adminAuth } = require("../middlewares/auth");
 const { z } = require("zod");
 const rateLimit = require("express-rate-limit");
 
@@ -42,5 +41,9 @@ router.get("/my-roadmaps", middleware, authController.getMyRoadmaps);
 router.post("/enroll", middleware, authController.enrollInRoadmap);
 router.get("/progress/:roadmapId", middleware, progressController.getProgressSummary);
 router.patch("/progress/:roadmapId", middleware, progressController.toggleStep);
-router.post("/submit-project", middleware, validate(urlSchema), submitController.submitProject);
+router.post("/submit-project", middleware, validate(urlSchema) );
+router.get('/dashboard-data', adminAuth, (req, res) => {
+    res.json({ data: "This is a secret data for admin get out from here" });
+});
+router.get('/GetProjects',middleware,authController.GetProjects)
 module.exports = router;

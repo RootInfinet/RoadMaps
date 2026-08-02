@@ -33,6 +33,21 @@ res.status(500).json({ message: "Internal server error" });  }
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+        const token = jwt.sign(
+            { email: email, role: 'admin' }, 
+            process.env.SECRET_KEY, 
+            { expiresIn: '1h' }
+        );
+        return res.status(200).json({ 
+          user:{
+            message: "Admin access granted", 
+            role: 'admin', 
+          }
+        });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
@@ -40,19 +55,19 @@ const login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-    const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
+    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.SECRET_KEY, {
       expiresIn: "1h",
     });
 
     res.cookie("token", token, {
       httpOnly: true,
 secure:true,
-      sameSite: "none",
+      sameSite: "LAX",
     });
 
     return res.status(200).json({
       message: "Login Successful",
-      user: { id: user.id, name: user.name, email: user.email },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
 console.error(error);
@@ -71,30 +86,6 @@ const logout = (req, res) => {
 
 const getMe = async (req, res) => {
   return res.status(200).json({ user: req.user });
-};
-
-const updateUser = async (req, res) => {
-  const { name, oldPassword, newPassword } = req.body;
-  const userId = req.user.id;
-
-  try {
-    const data = { name };
-
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data,
-      select: { id: true, name: true, email: true },
-    });
-
-    res.status(200).json({ user: updatedUser });
-  } catch (error) {
-console.error(error); 
-res.status(500).json({ message: "Internal server error" });  }
 };
 
 const getMyRoadmaps = async (req, res) => {
@@ -172,12 +163,116 @@ const enrollInRoadmap = async (req, res) => {
   }
 };
 
+const submitProjects = async (req, res) => {
+  try {
+    const { userId, roadmapId, projects } = req.body;
+
+    if (!userId || !roadmapId || !projects || !Array.isArray(projects) || projects.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "User ID, Roadmap ID, and projects are required!" 
+      });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
+    const roadmap = await prisma.roadmap.findUnique({ where: { id: Number(roadmapId) } });
+
+    if (!user || !roadmap) {
+      return res.status(404).json({ success: false, message: "User or Roadmap not found!" });
+    }
+
+    let enrollment = await prisma.userEnrollment.findUnique({
+      where: {
+        userId_roadmapId: {
+          userId: Number(userId),
+          roadmapId: Number(roadmapId)
+        }
+      }
+    });
+
+    if (!enrollment) {
+      enrollment = await prisma.userEnrollment.create({
+        data: {
+          userId: Number(userId),
+          roadmapId: Number(roadmapId),
+          status: "in-progress"
+        }
+      });
+    }
+
+    const projectsData = projects.map(proj => ({
+      enrollmentId: enrollment.id,
+      projectTitle: proj.projectTitle || "Graduation Project",
+      projectUrl: proj.projectUrl,
+      status: "pending"
+    }));
+
+    await prisma.projectSubmission.createMany({
+      data: projectsData
+    });
+
+    console.log(`Review email can be sent to: ${user.email} for roadmap: ${roadmap.title}`);
+
+    return res.status(201).json({ 
+      success: true, 
+      message: "Projects submitted successfully and ready for review!" 
+    });
+
+  }catch (error) {
+    console.error("Error in submitProjects:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error",
+      error: error.message 
+    });
+  }
+};
+const GetProjects = async (req, res) => {
+  try {
+    
+    const { status } = req.query; 
+
+    const projects = await prisma.projectSubmission.findMany({
+      where: status ? { status: status } : {}, 
+      include: {
+        enrollment: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true } 
+            },
+            roadmap: {
+              select: { id: true, title: true } 
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc' 
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: projects.length,
+      data: projects
+    });
+
+  } catch (error) {
+    console.error("Error in GetProjects for Admin:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error",
+      error: error.message 
+    });
+  }
+};
 module.exports = {
   register,
   login,
   logout,
   getMe,
-  updateUser,
   getMyRoadmaps,
   enrollInRoadmap,
+  submitProjects,
+  GetProjects
 };
