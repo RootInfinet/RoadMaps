@@ -36,10 +36,15 @@ const login = async (req, res) => {
     
     if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
         const token = jwt.sign(
-            { email: email, role: 'admin' }, 
+            { userId: "admin-id", email: email, role: 'admin' }, 
             process.env.SECRET_KEY, 
             { expiresIn: '1h' }
         );
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+        });
         return res.status(200).json({ 
           user:{
             message: "Admin access granted", 
@@ -61,7 +66,7 @@ const login = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-secure:true,
+secure:false,
       sameSite: "LAX",
     });
 
@@ -165,8 +170,8 @@ const enrollInRoadmap = async (req, res) => {
 
 const submitProjects = async (req, res) => {
   try {
-    const { userId, roadmapId, projects } = req.body;
-
+    const { roadmapId, projects } = req.body;
+const userId = req.user.id;
     if (!userId || !roadmapId || !projects || !Array.isArray(projects) || projects.length === 0) {
       return res.status(400).json({ 
         success: false, 
@@ -227,45 +232,7 @@ const submitProjects = async (req, res) => {
     });
   }
 };
-const GetProjects = async (req, res) => {
-  try {
-    
-    const { status } = req.query; 
 
-    const projects = await prisma.projectSubmission.findMany({
-      where: status ? { status: status } : {}, 
-      include: {
-        enrollment: {
-          include: {
-            user: {
-              select: { id: true, name: true, email: true } 
-            },
-            roadmap: {
-              select: { id: true, title: true } 
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc' 
-      }
-    });
-
-    return res.status(200).json({
-      success: true,
-      count: projects.length,
-      data: projects
-    });
-
-  } catch (error) {
-    console.error("Error in GetProjects for Admin:", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Internal Server Error",
-      error: error.message 
-    });
-  }
-};
 module.exports = {
   register,
   login,
@@ -274,5 +241,4 @@ module.exports = {
   getMyRoadmaps,
   enrollInRoadmap,
   submitProjects,
-  GetProjects
 };

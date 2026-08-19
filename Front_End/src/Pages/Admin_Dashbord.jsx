@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import api from "../api/axios";
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import api from "../api/axios"
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('projects')
   const [submittedProjects, setSubmittedProjects] = useState([])
   const [loading, setLoading] = useState(true)
+
+  const [importLoading, setImportLoading] = useState(false)
+  const [importMessage, setImportMessage] = useState('')
+  const [fileNameDisplay, setFileNameDisplay] = useState('')
+  
+  const fileInputRef = useRef(null)
 
   const [platformStats, setPlatformStats] = useState({
     totalUsers: '---', 
@@ -13,38 +19,34 @@ function AdminDashboard() {
     securityShield: 'Active'
   })
 
-
-  useEffect(() => {
-    fetchProjectsFromDB()
-  }, [])
-
-  const fetchProjectsFromDB = async () => {
+  const fetchProjectsFromDB = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await api.get("/submit_prject")
-      if (!response.ok) throw new Error('Failed to fetch projects')
-      const data = await response.json()
-      setSubmittedProjects(data)
+      const response = await api.get("/auth/GetProjects")
+      
+      const resultData = response.data.projects || response.data.data || response.data;
+      setSubmittedProjects(Array.isArray(resultData) ? resultData : []);
     } catch (error) {
       console.error("Error fetching data from API:", error)
       setSubmittedProjects([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  // تحديث حالة المشروع في الـ Database عبر الـ API
+  useEffect(() => {
+    fetchProjectsFromDB()
+  }, [fetchProjectsFromDB])
+
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+      const response = await api.patch('/auth/updateprojectsstate', {
+        status: newStatus,
+        id: id,
       })
+      if (response.status !== 200) throw new Error('Failed to update status')
 
-      if (!response.ok) throw new Error('Failed to update status')
-
-      setSubmittedProjects(submittedProjects.map(proj => 
+      setSubmittedProjects(submittedProjects.map(proj =>  
         proj.id === id ? { ...proj, status: newStatus } : proj
       ))
     } catch (error) {
@@ -52,18 +54,39 @@ function AdminDashboard() {
     }
   }
 
-  // حذف المشروع نهائياً من الـ Database عبر الـ API
-  const handleDeleteProject = async (id) => {
+  const handleFileUpload = async () => {
+    const selectedFile = fileInputRef.current?.files[0];
+
+    if (!selectedFile) {
+      setImportMessage('Please select a file first! ⚠️')
+      return
+    }
+
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'DELETE'
+      setImportLoading(true)
+      setImportMessage('')
+      
+      const formData = new FormData()
+      formData.append('roadmapFile', selectedFile) 
+
+      console.log("📤 Uploading File:", selectedFile.name, "Size:", selectedFile.size, "bytes");
+
+      const response = await api.post('/upload/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       })
-
-      if (!response.ok) throw new Error('Failed to delete project')
-
-      setSubmittedProjects(submittedProjects.filter(proj => proj.id !== id))
+      
+      if (response.status === 201 || response.status === 200) {
+        setImportMessage(`Roadmap uploaded successfully! Steps saved: ${response.data.totalStepsSaved || 'Done'} 🚀`)
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        setFileNameDisplay('');
+      }
     } catch (error) {
-      console.error("Failed to delete project:", error)
+      console.error("🔥 ERROR CAUGHT:", error);
+      setImportMessage('Error: Invalid file format or server error.')
+    } finally {
+      setImportLoading(false)
     }
   }
 
@@ -79,6 +102,7 @@ function AdminDashboard() {
           <p className='text-gray-400 text-sm mt-1'>Real-time platform monitoring and dynamic student project requests tracking.</p>
         </div>
         
+        {/* Navigation Tabs */}
         <div className="flex gap-3 mt-4 md:mt-0">
           <button 
             onClick={() => setActiveTab('projects')}
@@ -86,14 +110,20 @@ function AdminDashboard() {
           >
             🚀 Student Projects ({submittedProjects.length})
           </button>
+          
+          <button 
+            onClick={() => setActiveTab('importer')}
+            className={`px-5 py-2.5 rounded-xl font-medium transition-all cursor-pointer ${activeTab === 'importer' ? 'bg-[#00E676] text-black font-bold shadow-lg shadow-[#00E676]/25' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
+          >
+            📁 Upload Roadmap File
+          </button>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* 📊 Platform Status Cards (إحصائيات المنصة) */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
           <div className="p-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-xs font-medium">Total Platform Users</p>
@@ -129,10 +159,9 @@ function AdminDashboard() {
             </div>
             <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xl">⚡</div>
           </div>
-
         </div>
 
-        {/* 🚀 Dynamic Projects Section */}
+        {/* Tab 1: Student Projects */}
         {activeTab === 'projects' && (
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -145,36 +174,33 @@ function AdminDashboard() {
             ) : submittedProjects.length === 0 ? (
               <p className='text-gray-400 text-center py-20 bg-white/5 rounded-2xl border border-white/10'>No project requests found in the database yet.</p>
             ) : (
-              /* Grid System */
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {submittedProjects.map((proj) => (
+                {Array.isArray(submittedProjects) && submittedProjects.map((proj) => (
                   <div key={proj.id} className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-col justify-between gap-4 hover:border-[#00E676]/50 transition-all">
                     
-                    {/* Student Info */}
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-start">
-                        <span className="font-extrabold text-xl text-white">{proj.name}</span>
-                        <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">{proj.roadmap}</span>
+                        <span className="font-extrabold text-xl text-white">{proj.enrollment?.user?.name || "Student"}</span>
+                        <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">{proj.projectTitle}</span>
                       </div>
                       
                       <a 
-                        href={proj.link} 
+                        href={proj.projectUrl} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="text-[#00E676] text-sm truncate hover:underline bg-black/30 p-2.5 rounded-xl border border-white/5 mt-1"
                       >
-                        🔗 {proj.link}
+                        🔗 {proj.projectUrl}
                       </a>
-                      <span className="text-xs text-gray-400">Submission Date: {proj.date}</span>
+                      <span className="text-xs text-gray-400">Submission Date: {proj.submittedAt}</span>
                     </div>
 
-                    {/* Status & Action Buttons */}
                     <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-300">Review Status:</span>
                         <span className={`text-xs px-3 py-1 rounded-lg font-medium 
-                          ${proj.status === 'Accepted' || proj.status === 'مقبول' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 
-                            proj.status === 'Rejected' || proj.status === 'مرفوض' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 
+                          ${proj.status === 'Accepted' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 
+                            proj.status === 'Rejected' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 
                             'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}
                         >
                           {proj.status}
@@ -194,13 +220,6 @@ function AdminDashboard() {
                         >
                           Reject ❌
                         </button>
-                        <button 
-                          onClick={() => handleDeleteProject(proj.id)} 
-                          className="px-3 py-2 rounded-xl bg-gray-500/10 hover:bg-red-600/25 text-gray-400 hover:text-red-400 text-sm transition-all cursor-pointer border border-white/10"
-                          title="Permanent Delete"
-                        >
-                          🗑️
-                        </button>
                       </div>
                     </div>
 
@@ -208,6 +227,43 @@ function AdminDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Tab 2: Upload Roadmap File */}
+        {activeTab === 'importer' && (
+          <div className="p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 max-w-3xl mx-auto shadow-2xl">
+            <h3 className="text-2xl font-bold text-[#00E676] mb-2">📁 Upload Roadmap File (JSON / TXT)</h3>
+            <p className="text-gray-400 text-sm mb-6">Select and upload your structured roadmap file to automatically parse and store it in the database.</p>
+            
+            <div className="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center bg-black/30 hover:border-[#00E676]/50 transition-all">
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                accept=".json,.txt"
+                onChange={(e) => setFileNameDisplay(e.target.files[0]?.name || '')}
+                className="hidden"
+                id="roadmapFileUploader"
+              />
+              <label htmlFor="roadmapFileUploader" className="cursor-pointer flex flex-col items-center gap-3">
+                <span className="text-4xl">📤</span>
+                <span className="text-white font-medium text-base">
+                  {fileNameDisplay ? fileNameDisplay : "Click here to select a file"}
+                </span>
+                <span className="text-xs text-gray-400">Supports .json, .txt files</span>
+              </label>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+              <span className="text-sm text-gray-300 font-medium">{importMessage}</span>
+              <button 
+                onClick={handleFileUpload}
+                disabled={importLoading}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#00E676] text-black font-extrabold hover:bg-[#00c864] transition-all cursor-pointer disabled:opacity-50"
+              >
+                {importLoading ? 'Uploading & Processing... 🔄' : 'Upload & Generate ⚡'}
+              </button>
+            </div>
           </div>
         )}
 

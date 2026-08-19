@@ -27,23 +27,12 @@ const getProgressSummary = async (req, res) => {
 
 const toggleStep = async (req, res) => {
   try {
-    const rawId = String(req.params.roadmapId).split(':')[0];
-    const roadmapId = parseInt(rawId, 10);
+    const roadmapId = parseInt(req.params.roadmapId, 10);
     const { stepId, isDone } = req.body;
 
     if (Number.isNaN(roadmapId) || !stepId) {
       return res.status(400).json({ message: "roadmapId and stepId are required" });
     }
-
-    await prisma.roadmap.upsert({
-      where: { id: roadmapId },
-      create: {
-        id: roadmapId,
-        title: "Front-End Development (Security By Design)",
-        description: "MVP Roadmap Description",
-      },
-      update: {},
-    });
 
     let enrollment = await prisma.userEnrollment.findUnique({
       where: {
@@ -55,16 +44,11 @@ const toggleStep = async (req, res) => {
     });
 
     if (!enrollment) {
-      enrollment = await prisma.userEnrollment.create({
-        data: {
-          userId: req.user.id,
-          roadmapId: roadmapId,
-          completedSteps: [],
-          status: "in-progress",
-        },
-      });
+      return res.status(404).json({ message: "User is not enrolled in this roadmap" });
     }
 
+
+    
     let completed = Array.isArray(enrollment.completedSteps)
       ? [...enrollment.completedSteps]
       : [];
@@ -75,6 +59,7 @@ const toggleStep = async (req, res) => {
       completed = completed.filter((id) => id !== stepId);
     }
 
+
     const updated = await prisma.userEnrollment.update({
       where: { id: enrollment.id },
       data: {
@@ -83,16 +68,16 @@ const toggleStep = async (req, res) => {
       },
     });
 
-    const completedCount = updated.completedSteps.length;
-
     return res.status(200).json({
       completedSteps: updated.completedSteps,
-      completedCount,
+      completedCount: updated.completedSteps.length,
       status: updated.status
     });
+
   } catch (error) {
     console.error("Error in toggleStep:", error);
     return res.status(500).json({ message: "Error updating progress" });
   }
 };
+
 module.exports = { getProgressSummary, toggleStep };

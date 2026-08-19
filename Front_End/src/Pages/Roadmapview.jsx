@@ -4,10 +4,10 @@ import RoadmapSidebar from "../Components/RoadmapSidebar";
 import { FiCheck, FiLock, FiInfo } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import api from "../api/axios";
-import {
-  frontEndRoadmap,
-  ROADMAP_TITLE,
-} from "../data/frontEndRoadmap";
+// import {
+//   frontEndRoadmap,
+//   ROADMAP_TITLE,
+// } from "../data/frontEndRoadmap";
 
 function Roadmapview() { 
   const { user } = useSelector((state) => state.user);
@@ -29,7 +29,7 @@ function Roadmapview() {
   useEffect(() => {
     const fetchAllProgress = async () => {
       try {
-        const response = await api.get(`/progress/${roadmapId}`);
+        const response = await api.get(`/progress/progress/${roadmapId}`);
         
         if (response.data && response.data.completedSteps) {
           const stepsArray = response.data.completedSteps;
@@ -49,10 +49,11 @@ function Roadmapview() {
     fetchAllProgress();
   }, [roadmapId]);
 
-  const currentUser = {
+ const currentUser = {
+    id: user?.id ,
     name: user?.name || "Student",
     email: user?.email || "Guest@gmail.com"
-  };
+};
 
   const currentPhase = useMemo(
     () => frontEndRoadmap.find((p) => p.phase === activePhase) ?? frontEndRoadmap[0],
@@ -69,32 +70,32 @@ function Roadmapview() {
     setIsSidebarOpen(true);
   };
 
-  const markStepAsComplete = async (stepId) => {
-    try {
-      setCompletedSteps((prev) => ({ ...prev, [stepId]: true }));
-      setIsSidebarOpen(false);
+const markStepAsComplete = async (stepId) => {
+  try {
+    setCompletedSteps((prev) => ({ ...prev, [stepId]: true }));
+    setIsSidebarOpen(false);
 
-      await api.patch(`/progress/${activePhase}`, {
-        stepId,
-        isDone: true
-      });
-    } catch (error) {
-      console.error("Failed to save progress to server:", error);
-    }
-  };
-
+    await api.patch(`/progress/progress/${roadmapId}`, {
+      stepId,
+      isDone: true
+    });
+  } catch (error) {
+    console.error("Failed to save progress to server:", error);
+  }
+};
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [projectOneUrl, setProjectOneUrl] = useState("");
   const [projectTwoUrl, setProjectTwoUrl] = useState("");
   const [isSending, setIsSending] = useState(false);
 
   const handleFinalSubmit = async (event) => {
+    console.log("Button clicked, function started!");
     event.preventDefault();
     setIsSending(true);
 
     const requestData = {
       userId: currentUser.id,      
-      roadmapId: ROADMAP_ID,       
+      roadmapId: roadmapId,       
       projects: [
         {
           projectTitle: "Portfolio / 5 Phases Project",
@@ -108,10 +109,11 @@ function Roadmapview() {
     };
 
     try {
-      await api.post("/submit-projects", requestData);
+      await api.post("/submit-project", requestData);
 
       console.log("Projects submitted to database successfully!");
       alert("🎉 CONGRATULATIONS! Your projects have been successfully submitted for review.");
+
       setIsSubmitModalOpen(false);
     } catch (error) {
       console.error("Failed to submit projects:", error);
@@ -296,6 +298,7 @@ function Roadmapview() {
                   type="submit"
                   disabled={isSending}
                   className="w-full sm:flex-1 bg-[#00FFFF] text-black font-extrabold py-2.5 rounded-xl text-xs sm:text-sm cursor-pointer transition hover:bg-[#00FFFF]/80 disabled:opacity-50"
+                  onClick={handleFinalSubmit}
                 >
                   {isSending ? "Sending Both..." : "Submit Graduation"}
                 </button>

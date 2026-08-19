@@ -1,6 +1,9 @@
 const express = require("express");
 const helmet = require("helmet");
-const authRoutes = require("./src/Router/AuthRoute");
+const main_route = require("./src/Router/main-route");
+const auth_route = require("./src/Router/auth-route");
+const progress_route = require("./src/Router/progress-route");
+const upload_route = require("./src/Router/upload-route")
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
@@ -20,7 +23,10 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
 
-app.use("/", authRoutes);
+app.use("/", main_route);
+app.use("/auth", auth_route);
+app.use("/progress", progress_route);
+app.use("/upload", upload_route);
 
 const path = require("path");
 app.use(express.static(path.join(__dirname, "../Front_End/dist")));

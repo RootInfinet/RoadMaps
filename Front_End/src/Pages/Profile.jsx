@@ -4,7 +4,7 @@ import { setUser } from '../Redux/UserSlice';
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from '../Components/NavBar';
-import { frontEndRoadmap } from '../data/frontEndRoadmap';
+// import { frontEndRoadmap } from '../data/frontEndRoadmap';
 
 function Profile() {
   const dispatch = useDispatch();

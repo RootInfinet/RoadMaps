@@ -17,8 +17,8 @@ function Login() {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+   const handleLogin = async (e) => {
+    e.preventDefault(); 
     try {
         const response = await api.post("/login", {
             email: credentials.email,
@@ -28,24 +28,22 @@ function Login() {
         if (response.status === 200) {
             alert("System Access Granted!");
             dispatch(loginSuccess(response.data.user));
-
             
-const role = response.data.user?.role;
+            const role = response.data.user?.role;
 
             if (role === "admin") {
                 navigate("/admin");
             } else if (role === "user") {
                 navigate("/profile");
             } else {
-                alert("role is not define ");
+                alert("role is not defined");
             }
         }
     } catch (error) {
         alert("Access Denied: Check your credentials");
-        console.error("errpr while logining in ", error);
+        console.error("error while logging in ", error);
     }
 };
-
   return (
     <div className="bg-[#0A0A0A] min-h-screen text-white font-sans relative overflow-hidden">
       <div className="hidden sm:block absolute top-1/3 -left-10 sm:-left-20 bg-[#37ff1425] w-40 sm:w-50 h-40 sm:h-50 rounded-full blur-3xl"></div>
