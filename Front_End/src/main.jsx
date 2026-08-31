@@ -10,12 +10,12 @@ import Roadmaps from "./Pages/Roadmaps.jsx";
 import Roadmapview from "./Pages/Roadmapview.jsx";
 import TermsAndPrivacy from "./Pages/Terms.jsx";
 import { Provider } from 'react-redux';
-import { store, persistor } from './Store/Store.js';
-import { PersistGate } from 'redux-persist/integration/react';
+import { store} from './Store/Store.js';
+import AdminDashbord from "./Pages/Admin_Dashbord.jsx";
+import ProtectedRoute from "./Components/ProtectedRoute.jsx"
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />} />
@@ -25,9 +25,15 @@ createRoot(document.getElementById("root")).render(
             <Route path="/roadmaps" element={<Roadmaps />} />
             <Route path="/roadmaps/:id" element={<Roadmapview />} />
             <Route path="/terms" element={<TermsAndPrivacy />} />
-          </Routes>
+<Route 
+  path="/admin" 
+  element={
+    <ProtectedRoute isAdmin={true}>
+      <AdminDashbord />
+    </ProtectedRoute>
+  } 
+/>          </Routes>
         </BrowserRouter>
-      </PersistGate>
     </Provider>
   </StrictMode>
 );

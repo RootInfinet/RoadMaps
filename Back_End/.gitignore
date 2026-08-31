@@ -1,3 +1,5 @@
 .env
+.production.env
 /src/generated/prisma
 node_modules
+Script_Dev.py

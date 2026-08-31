@@ -48,7 +48,7 @@ function Signup() {
 
       {/* Signup Form Container */}
       <div className="flex flex-col justify-center items-center px-4 sm:px-6">
-        <div className="backdrop-filter backdrop-blur-lg bg-white/5 border border-white/10 p-5 sm:p-6 shadow-xl flex flex-col justify-center pt-8 sm:pt-10 w-full max-w-[400px] sm:w-[400px]">
+        <div className="backdrop-filter backdrop-blur-lg bg-white/5 border border-white/10 p-5 sm:p-6 shadow-xl flex flex-col justify-center pt-8 sm:pt-10 w-full max-w-100 sm:w-100">
           <h2 className="text-2xl sm:text-3xl font-bold w-full">Initialize Registration</h2>
           <div className="h-0.5 w-full bg-linear-to-r from-black to-[#39FF14] mt-4 sm:mt-5 mb-4 sm:mb-5"></div>
           <h2 className="text-lg sm:text-xl font-bold">System Access</h2>
@@ -69,7 +69,7 @@ function Signup() {
               >
                 IDENTIFIER
               </label>
-              <CgTerminal className="absolute top-[40px] sm:top-[47px] left-3 text-[#00FFFF] group-focus-within:text-[#37FF14] text-lg sm:text-xl transition-colors duration-300 z-10" />
+              <CgTerminal className="absolute top-10 sm:top-11.75 left-3 text-[#00FFFF] group-focus-within:text-[#37FF14] text-lg sm:text-xl transition-colors duration-300 z-10" />
               <input
                 type="email"
                 name="email"
@@ -88,7 +88,7 @@ function Signup() {
               >
                 SECRET_KEY
               </label>
-              <IoIosLock className="absolute top-[40px] sm:top-[47px] left-3 text-[#00FFFF] group-focus-within:text-[#37FF14] text-lg sm:text-xl transition-colors duration-300 z-10" />
+              <IoIosLock className="absolute top-10 sm:top-11.75 left-3 text-[#00FFFF] group-focus-within:text-[#37FF14] text-lg sm:text-xl transition-colors duration-300 z-10" />
               <input
                 name="password"
                 value={credentials.password}
@@ -107,7 +107,7 @@ function Signup() {
               >
                 IDENTITY_NAME
               </label>
-              <FaUser className="absolute top-[40px] sm:top-[47px] left-3 text-[#00FFFF] group-focus-within:text-[#37FF14] text-lg sm:text-xl transition-colors duration-300 z-10" />
+              <FaUser className="absolute top-10 sm:top-11.75 left-3 text-[#00FFFF] group-focus-within:text-[#37FF14] text-lg sm:text-xl transition-colors duration-300 z-10" />
               <input
                 name="name"
                 value={credentials.name}

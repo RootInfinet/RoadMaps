@@ -1,10 +1,9 @@
 const express = require("express");
-const authController = require("../Controller/AuthController");
+const authController = require("../Controller/main-controller");
 const progressController = require("../Controller/ProgressController");
-const submitController = require("../Controller/SubmitController");
 const router = express.Router();
 const { validate, urlSchema } = require("../middlewares/validate");
-const { middleware } = require("../middlewares/auth");
+const { middleware,adminAuth } = require("../middlewares/auth");
 const { z } = require("zod");
 const rateLimit = require("express-rate-limit");
 
@@ -37,10 +36,12 @@ router.post("/register", regestirLimiter, validate(regetershema), authController
 router.post("/login", loginLimiter, validate(loginSchema), authController.login);
 router.post("/logout", authController.logout);
 router.get("/me", middleware, authController.getMe);
-router.put("/update", middleware, authController.updateUser);
 router.get("/my-roadmaps", middleware, authController.getMyRoadmaps);
 router.post("/enroll", middleware, authController.enrollInRoadmap);
-router.get("/progress/:roadmapId", middleware, progressController.getProgressSummary);
-router.patch("/progress/:roadmapId", middleware, progressController.toggleStep);
-router.post("/submit-project", middleware, validate(urlSchema), submitController.submitProject);
+router.get("/Avroadmaps", middleware, authController.GetAvailableRoadmaps);
+router.get("/steps/:id", middleware, authController.getSteps);
+
+router.post("/submit-project", middleware, validate(urlSchema), authController.submitProjects);
+
+
 module.exports = router;

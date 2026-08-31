@@ -17,32 +17,38 @@ function Login() {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+   const handleLogin = async (e) => {
+    e.preventDefault(); 
     try {
-      const response = await api.post("/login", credentials, {
-        withCredentials: true,
-      });
-      if (response.status === 200) {
-        alert("System Access Granted!");
-        dispatch(loginSuccess(response.data.user));
-        navigate("/profile");
-      }
-    } catch (error) {
-      alert("Access Denied: Check your credentials");
-    } finally {
-      setLoading(false);
-    }
-  };
+        const response = await api.post("/login", {
+            email: credentials.email,
+            password: credentials.password
+        });
 
+        if (response.status === 200) {
+            alert("System Access Granted!");
+            dispatch(loginSuccess(response.data.user));
+            
+            const role = response.data.user?.role;
+
+            if (role === "admin") {
+                navigate("/admin");
+            } else if (role === "user") {
+                navigate("/profile");
+            } else {
+                alert("role is not defined");
+            }
+        }
+    } catch (error) {
+        alert("Access Denied: Check your credentials");
+        console.error("error while logging in ", error);
+    }
+};
   return (
     <div className="bg-[#0A0A0A] min-h-screen text-white font-sans relative overflow-hidden">
-      {/* Decorative blurred circles - hidden on small screens */}
       <div className="hidden sm:block absolute top-1/3 -left-10 sm:-left-20 bg-[#37ff1425] w-40 sm:w-50 h-40 sm:h-50 rounded-full blur-3xl"></div>
       <div className="hidden sm:block absolute top-1/3 -right-10 sm:-right-20 bg-[#00ffff38] w-40 sm:w-50 h-40 sm:h-50 rounded-full blur-3xl"></div>
 
-      {/* Top bar - responsive padding & text */}
       <div className="flex flex-row justify-between items-center pt-4 sm:pt-5 pb-4 sm:pb-5 px-4 sm:px-8 md:px-16 lg:px-20">
         <h1 className="text-[#39FF14] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold">
           <Link to="/">RoadMap</Link>
@@ -50,7 +56,6 @@ function Login() {
         <p className="text-[#BACCB0] text-xs sm:text-sm md:text-base">HELP_CENTER</p>
       </div>
 
-      {/* Login Form Container */}
       <div className="flex flex-col justify-center items-center px-4 sm:px-6">
         <div className="backdrop-filter backdrop-blur-lg bg-white/5 border border-white/10 p-5 sm:p-6 shadow-xl flex flex-col justify-center pt-8 sm:pt-10 w-full max-w-[400px] sm:w-[400px]">
           <h2 className="text-2xl sm:text-3xl font-bold w-full">Initialize SIGN_IN</h2>
@@ -65,7 +70,6 @@ function Login() {
             className="flex flex-col justify-start mt-4 sm:mt-5"
             onSubmit={handleLogin}
           >
-            {/* Email Field */}
             <div className="relative w-full group">
               <label
                 htmlFor="Email"
@@ -84,7 +88,6 @@ function Login() {
               />
             </div>
 
-            {/* Password Field */}
             <div className="relative w-full group mt-4 sm:mt-5 mb-2 sm:mb-3">
               <label
                 htmlFor="Password"
@@ -103,7 +106,6 @@ function Login() {
               />
             </div>
 
-            {/* Signup Link */}
             <p className="mt-4 sm:mt-5 text-sm sm:text-base">
               Don't have an account? Create an account{" "}
               <Link
@@ -114,7 +116,6 @@ function Login() {
               </Link>
             </p>
 
-            {/* Submit Button */}
             <button
               className="py-2.5 sm:py-3 px-2 bg-[#39FF14] mt-4 sm:mt-5 text-black cursor-pointer border hover:bg-white/5 hover:border-[#39FF14] hover:text-white text-sm sm:text-base duration-300"
               type="submit"
@@ -125,7 +126,6 @@ function Login() {
         </div>
       </div>
 
-      {/* Footer - responsive */}
       <footer className="w-full border-t border-white/10 bg-[#0a0a0a] py-6 sm:py-8 mt-8 sm:mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2">

@@ -4,7 +4,6 @@ import { setUser } from '../Redux/UserSlice';
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from '../Components/NavBar';
-import { frontEndRoadmap } from '../data/frontEndRoadmap';
 
 function Profile() {
   const dispatch = useDispatch();
@@ -16,33 +15,34 @@ function Profile() {
   const [roadmaps, setRoadmaps] = useState([]);
 
   const checkAuth = async () => {
-  try {
-    const response = await api.get("/me", { withCredentials: true });
-    if (response.status === 200) {
-      dispatch(setUser(response.data.user));
+    try {
+      const response = await api.get("/me", { withCredentials: true });
+      if (response.status === 200) {
+        dispatch(setUser(response.data.user));
+      }
+
+      const roadmapsRes = await api.get("/my-roadmaps", { withCredentials: true });
+      if (roadmapsRes.status === 200) {
+        setRoadmaps(roadmapsRes.data.roadmaps || []);
+      }
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    const roadmapsRes = await api.get("/my-roadmaps", { withCredentials: true });
-    if (roadmapsRes.status === 200) {
-      setRoadmaps(roadmapsRes.data.roadmaps || []);
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (user && user.name) {
+      setFormData(prev => {
+        if (prev.name === user.name) return prev; 
+        return { ...prev, name: user.name };
+      });
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  }, [user]);
 
-useEffect(() => {
-  checkAuth();
-}, []);
-
-useEffect(() => {
-  if (user && user.name) {
-    setFormData(prev => {
-      if (prev.name === user.name) return prev; 
-      return { ...prev, name: user.name };
-    });
-  }
-}, [user]);
   const handleUpdate = async () => {
     try {
       const res = await api.put("/update", formData, { withCredentials: true });
@@ -141,35 +141,31 @@ useEffect(() => {
           
           {roadmaps.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {roadmaps.map((rm) => {
-                const fullInfo = frontEndRoadmap.find(item => item.id === rm.roadmapId);
+              {roadmaps.map((rm) => (
+                <div 
+                  key={rm._id || rm.id} 
+                  className="p-4 sm:p-5 bg-[#141414] rounded-2xl border border-zinc-800 hover:border-[#39FF14] transition-all duration-300"
+                >
+                  <h3 className="font-extrabold text-base sm:text-lg text-white tracking-wide">
+                    {rm.title || "Frontend Development"} 
+                  </h3>
+                  
+                  {rm.subtitle && (
+                    <span className="text-[#39FF14] text-xs block mt-1 font-medium">
+                      {rm.subtitle}
+                    </span>
+                  )}
 
-                return (
-                  <div 
-                    key={rm.id} 
-                    className="p-4 sm:p-5 bg-[#141414] rounded-2xl border border-zinc-800 hover:border-[#39FF14] transition-all duration-300"
-                  >
-                    <h3 className="font-extrabold text-base sm:text-lg text-white tracking-wide">
-                      {fullInfo ? fullInfo.title : "Frontend Development"} 
-                    </h3>
-                    
-                    {fullInfo && (
-                      <span className="text-[#39FF14] text-xs block mt-1 font-medium">
-                        {fullInfo.subtitle}
-                      </span>
+                  <div className="flex justify-between items-center mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-zinc-900 text-xs text-gray-400">
+                    <span>
+                      Status: <span className="text-[#39FF14] font-mono">{rm.status || "Active"}</span>
+                    </span>
+                    {rm.steps && (
+                      <span className="text-gray-500 font-mono">{rm.steps}</span>
                     )}
-
-                    <div className="flex justify-between items-center mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-zinc-900 text-xs text-gray-400">
-                      <span>
-                        Status: <span className="text-[#39FF14] font-mono">{rm.status}</span>
-                      </span>
-                      {fullInfo && (
-                        <span className="text-gray-500 font-mono">{fullInfo.steps}</span>
-                      )}
-                    </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-gray-400 text-sm sm:text-base">You haven't enrolled in any roadmaps yet.</p>
@@ -179,4 +175,5 @@ useEffect(() => {
     </div>
   );
 }
+
 export default Profile;
