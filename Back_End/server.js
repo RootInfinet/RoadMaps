@@ -1,6 +1,5 @@
 const express = require("express");
 const helmet = require("helmet");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
 const rateLimit = require('express-rate-limit');
@@ -30,8 +29,7 @@ const limiter = rateLimit({
 });
 
 app.use(express.json({ limit: '10kb' }));
-// codeql[missing-csrf-middleware]
-app.use(cookieParser());app.use(helmet({
+app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
 app.use(limiter);
