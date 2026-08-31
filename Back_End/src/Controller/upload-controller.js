@@ -84,18 +84,17 @@ async function uploadRoadmap(req, res) {
     } catch (error) {
         console.error("🔥 ERROR CAUGHT:", error);
         
-        if (req.file && req.file.path) {
+      if (req.file && req.file.path) {
             try {
-                const safeFilePath = getValidatedUploadPath(req.file.path);
-                if (fs.existsSync(safeFilePath)) {
-                    fs.unlinkSync(safeFilePath);
+                const resolvedPath = path.resolve(req.file.path);
+                const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+                if (!relativePath.startsWith('..') && !path.isAbsolute(relativePath) && fs.existsSync(resolvedPath)) {
+                    fs.unlinkSync(resolvedPath);
                 }
             } catch (cleanupError) {
-                console.error("Failed to safely clean up uploaded file:", cleanupError.message);
+                console.error("Cleanup error:", cleanupError.message);
             }
         }
-
-        return res.status(500).json({ error: error.message });
     }
 }
 
