@@ -24,7 +24,7 @@ function getValidatedUploadPath(filePath) {
 async function uploadRoadmap(req, res) {
     const client = await redisClient.getClient();
     try {
-        if (!req.file) {
+        if (!req.file || !req.file.path) {
             return res.status(400).json({ error: "No file uploaded!" });
         }
 
