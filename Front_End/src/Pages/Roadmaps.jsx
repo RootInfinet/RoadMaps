@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar';
 import { FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -6,17 +6,24 @@ import api from "../api/axios";
 
 function Roadmaps() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [roadmaps, setRoadmaps] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const initialRoadmaps = [
-    {
-      id: 1,
-      title: "Frontend Development",
-      subtitle: "(Security By Design)",
-      description: "Master the essentials of frontend engineering while implementing secure coding practices against client-side vulnerabilities.",
-      steps: "10 Steps"
-    }
-  ];
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      try {
+        const response = await api.get("/Avroadmaps");
+        setRoadmaps(response.data.roadmaps || []);
+      } catch (error) {
+        console.error("Error fetching roadmaps:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoadmaps();
+  }, []);
 
   const handleStartRoadmap = async (roadmap) => {
     try {
@@ -37,10 +44,11 @@ function Roadmaps() {
     }
   };
 
-  const filteredRoadmaps = initialRoadmaps.filter(roadmap => 
-    roadmap.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    roadmap.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRoadmaps = roadmaps.filter(roadmap => {
+    const titleMatch = roadmap.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const subtitleMatch = roadmap.subtitle?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    return titleMatch || subtitleMatch;
+  });
 
   return (
     <>
@@ -76,7 +84,9 @@ function Roadmaps() {
 
         {/* Roadmap Cards */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-8 sm:mt-10 md:mt-12">
-          {filteredRoadmaps.length > 0 ? (
+          {loading ? (
+            <div className="text-center text-slate-500 text-sm mt-8">Loading roadmaps...</div>
+          ) : filteredRoadmaps.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6" id="roadmap-cards">
               {filteredRoadmaps.map((roadmap) => (
                 <div 
@@ -86,9 +96,6 @@ function Roadmaps() {
                   <div>
                     <h3 className="font-extrabold text-lg sm:text-xl text-white tracking-wide">
                       {roadmap.title} 
-                      <span className="text-[#39FF14] text-xs sm:text-sm block mt-1 font-medium tracking-normal">
-                        {roadmap.subtitle}
-                      </span>
                     </h3>
                     <p className="text-gray-400 text-xs mt-3 leading-relaxed line-clamp-3">
                       {roadmap.description}
@@ -96,8 +103,6 @@ function Roadmaps() {
                   </div>
                   
                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-zinc-900">
-                    <span className="text-[10px] text-gray-500 font-mono">{roadmap.steps} steps</span>
-                    
                     <button 
                       onClick={() => handleStartRoadmap(roadmap)} 
                       className="text-xs font-semibold text-[#39FF14] hover:underline cursor-pointer bg-transparent border-none"

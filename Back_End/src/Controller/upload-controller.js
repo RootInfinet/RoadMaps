@@ -1,17 +1,24 @@
 const fs = require('fs');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
+const  redisClient  = require('../redisClient');
 async function uploadRoadmap(req, res) {
+    const client = await redisClient.getClient();
     try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No file uploaded!" });
+        }
+
         const rawData = fs.readFileSync(req.file.path, 'utf8');
         const parsedData = JSON.parse(rawData);
 
-let roadmapTitle = parsedData.roadmapTitle || parsedData.title || "Front-End Development Roadmap";
+        let roadmapTitle = parsedData.roadmapTitle || parsedData.title || "Front-End Development Roadmap";
         let roadmapDescription = parsedData.description || "Structured learning path.";
         let allStepsToCreate = [];
 
-        const phases = Array.isArray(parsedData) ? parsedData : [];
+        const phases = Array.isArray(parsedData) 
+            ? parsedData 
+            : (parsedData.phases || parsedData.roadmap || []);
 
         for (const phase of phases) {
             const stepsArray = phase.steps || phase.Steps || [];
@@ -42,6 +49,12 @@ let roadmapTitle = parsedData.roadmapTitle || parsedData.title || "Front-End Dev
             }
         });
 
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
+        await client.del("available_roadmaps_all");
+
         return res.status(201).json({
             message: "Roadmap and steps uploaded successfully!",
             totalStepsSaved: newRoadmap.steps.length,
@@ -50,6 +63,11 @@ let roadmapTitle = parsedData.roadmapTitle || parsedData.title || "Front-End Dev
 
     } catch (error) {
         console.error("🔥 ERROR CAUGHT:", error);
+        
+        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
         return res.status(500).json({ error: error.message });
     }
 }

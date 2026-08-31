@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-
+const  redisClient  = require('../redisClient');
 const register = async (req, res) => {
+
   try {
     const { email, password, name } = req.body;
 
@@ -25,9 +26,9 @@ const register = async (req, res) => {
       message: `User Created Successfully. Welcome ${name} to RoadMap`,
     });
   } catch (error) {
-    console.log(error);
-console.error(error); 
-res.status(500).json({ message: "Internal server error" });  }
+    console.error(error); 
+    res.status(500).json({ message: "Internal server error" });  
+  }
 };
 
 const login = async (req, res) => {
@@ -66,7 +67,7 @@ const login = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-secure:false,
+      secure: false,
       sameSite: "LAX",
     });
 
@@ -75,16 +76,17 @@ secure:false,
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
-console.error(error);
-res.status(500).json({ message: "Internal server error" });  }
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });  
+  }
 };
 
 const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-  secure: true,   
-  sameSite: 'none', 
-  expires: new Date(0)
+    secure: false,   
+    sameSite: 'none', 
+    expires: new Date(0)
   });
   return res.status(200).json({ message: "Logged out successfully" });
 };
@@ -94,9 +96,21 @@ const getMe = async (req, res) => {
 };
 
 const getMyRoadmaps = async (req, res) => {
+  const client = await redisClient.getClient();
+  const cacheKey = `user_roadmaps:${req.user.id}`;
+
   try {
+    const cachedData = await client.get(cacheKey);
+    if (cachedData) {
+      console.log("Serving user roadmaps from Redis Cache 🚀");
+      return res.status(200).json({ roadmaps: JSON.parse(cachedData) });
+    }
+
     const enrollments = await prisma.userEnrollment.findMany({
       where: { userId: req.user.id },
+      include: {
+        roadmap: true, 
+      },
       orderBy: { enrolledAt: "desc" },
     });
 
@@ -105,13 +119,16 @@ const getMyRoadmaps = async (req, res) => {
       return {
         id: e.id,
         roadmapId: e.roadmapId,
-        title: "Front-End Development (Security By Design)", 
+        title: e.title, 
+        description: e.roadmap?.description || "",
         status: e.status,
         completedSteps: completed,
         completedCount: completed.length,
         enrolledAt: e.enrolledAt,
       };
     });
+
+    await client.setEx(cacheKey, 1800, JSON.stringify(roadmaps)); 
 
     return res.status(200).json({ roadmaps });
   } catch (error) {
@@ -123,6 +140,7 @@ const getMyRoadmaps = async (req, res) => {
 const enrollInRoadmap = async (req, res) => {
   const userId = req.user.id;
   const { roadmapId } = req.body;
+const client = await redisClient.getClient();
 
   if (!roadmapId) {
     return res.status(400).json({ message: "Roadmap ID is required" });
@@ -135,15 +153,13 @@ const enrollInRoadmap = async (req, res) => {
       return res.status(400).json({ message: "Invalid Roadmap ID format" });
     }
 
-    await prisma.roadmap.upsert({
+    const roadmap = await prisma.roadmap.findUnique({
       where: { id: cleanRoadmapId },
-      create: {
-        id: cleanRoadmapId,
-        title: "Front-End Development (Security By Design)",
-        description: "Build a simple personal Portfolio page using HTML fundamentals.",
-      },
-      update: {}, 
     });
+
+    if (!roadmap) {
+      return res.status(404).json({ message: "Roadmap not found" });
+    }
 
     const enrollment = await prisma.userEnrollment.upsert({
       where: {
@@ -158,6 +174,8 @@ const enrollInRoadmap = async (req, res) => {
       update: {},
     });
 
+    await client.del(`user_roadmaps:${userId}`);
+
     return res.status(200).json({
       message: "Enrolled successfully",
       enrollment,
@@ -169,9 +187,12 @@ const enrollInRoadmap = async (req, res) => {
 };
 
 const submitProjects = async (req, res) => {
+  const client = await redisClient.getClient();
+
   try {
     const { roadmapId, projects } = req.body;
-const userId = req.user.id;
+    const userId = req.user.id;
+    
     if (!userId || !roadmapId || !projects || !Array.isArray(projects) || projects.length === 0) {
       return res.status(400).json({ 
         success: false, 
@@ -216,20 +237,73 @@ const userId = req.user.id;
       data: projectsData
     });
 
-    console.log(`Review email can be sent to: ${user.email} for roadmap: ${roadmap.title}`);
+    await client.del(`user_roadmaps:${userId}`);
 
     return res.status(201).json({ 
       success: true, 
       message: "Projects submitted successfully and ready for review!" 
     });
 
-  }catch (error) {
+  } catch (error) {
     console.error("Error in submitProjects:", error);
     return res.status(500).json({ 
       success: false, 
       message: "Internal Server Error",
       error: error.message 
     });
+  }
+};
+
+const GetAvailableRoadmaps = async (req, res) => {
+  const client = await redisClient.getClient();
+  const cacheKey = "available_roadmaps_all";
+
+  try {
+    const cachedData = await client.get(cacheKey);
+    if (cachedData) {
+      console.log("Serving available roadmaps from Redis Cache 🚀");
+      return res.status(200).json({ roadmaps: JSON.parse(cachedData) });
+    }
+
+    const roadmaps = await prisma.roadmap.findMany();
+
+    await client.setEx(cacheKey, 3600, JSON.stringify(roadmaps));
+
+    return res.status(200).json({ roadmaps });
+  } catch (error) {
+    console.error("Error fetching available roadmaps:", error);
+    return res.status(500).json({ message: "Error fetching available roadmaps" });
+  }
+};
+
+const getSteps = async (req, res) => {
+  const client = await redisClient.getClient();
+  const { id } = req.params;
+  const cacheKey = `roadmap_steps:${id}`;
+
+  try {
+    const cachedData = await client.get(cacheKey);
+    if (cachedData) {
+      console.log("Serving steps from Redis Cache 🚀");
+      return res.status(200).json({ steps: JSON.parse(cachedData) });
+    }
+
+    const steps = await prisma.step.findMany({
+      where: { 
+        roadmapId: Number(id) 
+      }
+    });
+
+    if (!steps || steps.length === 0) {
+      return res.status(404).json({ message: "No steps found for this roadmap" });
+    }
+
+    await client.setEx(cacheKey, 3600, JSON.stringify(steps));
+
+    return res.status(200).json({ steps });
+  } catch (error) {
+    console.error("Error fetching steps:", error);
+    return res.status(500).json({ message: "Error fetching steps" });
   }
 };
 
@@ -241,4 +315,6 @@ module.exports = {
   getMyRoadmaps,
   enrollInRoadmap,
   submitProjects,
+  GetAvailableRoadmaps,
+  getSteps
 };

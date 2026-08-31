@@ -14,14 +14,14 @@ const middleware = async (req, res, next) => {
 
     const userId = decoded.userId || decoded.id;
 
-    if (decoded.role === "admin" || decoded.email === process.env.ADMIN_EMAIL) {
-      req.user = {
-        id: userId,
+if (decoded.email === process.env.ADMIN_EMAIL && decoded.role === "admin") {
+    req.user = {
+        id: "admin",
         role: "admin",
         email: decoded.email,
-      };
-      return next();
-    }
+    };
+    return next();
+}
 
     if (!userId) {
       return res

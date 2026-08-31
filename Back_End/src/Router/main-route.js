@@ -38,6 +38,8 @@ router.post("/logout", authController.logout);
 router.get("/me", middleware, authController.getMe);
 router.get("/my-roadmaps", middleware, authController.getMyRoadmaps);
 router.post("/enroll", middleware, authController.enrollInRoadmap);
+router.get("/Avroadmaps", middleware, authController.GetAvailableRoadmaps);
+router.get("/steps/:id", middleware, authController.getSteps);
 
 router.post("/submit-project", middleware, validate(urlSchema), authController.submitProjects);
 
