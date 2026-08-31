@@ -1,7 +1,26 @@
 const fs = require('fs');
+const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const  redisClient  = require('../redisClient');
+
+const UPLOAD_ROOT = path.resolve(process.cwd(), 'uploads');
+
+function getValidatedUploadPath(filePath) {
+    if (typeof filePath !== 'string' || filePath.trim() === '') {
+        throw new Error('Invalid upload path.');
+    }
+
+    const resolvedPath = path.resolve(filePath);
+    const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+        throw new Error('Unsafe upload path.');
+    }
+
+    return resolvedPath;
+}
+
 async function uploadRoadmap(req, res) {
     const client = await redisClient.getClient();
     try {
@@ -9,7 +28,8 @@ async function uploadRoadmap(req, res) {
             return res.status(400).json({ error: "No file uploaded!" });
         }
 
-        const rawData = fs.readFileSync(req.file.path, 'utf8');
+        const safeFilePath = getValidatedUploadPath(req.file.path);
+        const rawData = fs.readFileSync(safeFilePath, 'utf8');
         const parsedData = JSON.parse(rawData);
 
         let roadmapTitle = parsedData.roadmapTitle || parsedData.title || "Front-End Development Roadmap";
@@ -49,8 +69,8 @@ async function uploadRoadmap(req, res) {
             }
         });
 
-        if (fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        if (fs.existsSync(safeFilePath)) {
+            fs.unlinkSync(safeFilePath);
         }
 
         await client.del("available_roadmaps_all");
@@ -64,8 +84,15 @@ async function uploadRoadmap(req, res) {
     } catch (error) {
         console.error("🔥 ERROR CAUGHT:", error);
         
-        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        if (req.file && req.file.path) {
+            try {
+                const safeFilePath = getValidatedUploadPath(req.file.path);
+                if (fs.existsSync(safeFilePath)) {
+                    fs.unlinkSync(safeFilePath);
+                }
+            } catch (cleanupError) {
+                console.error("Failed to safely clean up uploaded file:", cleanupError.message);
+            }
         }
 
         return res.status(500).json({ error: error.message });
