@@ -1,95 +1,38 @@
-```
-RoadMap
-├─ Back_End
-│  ├─ .env
-│  ├─ .production.env
-│  ├─ package-lock.json
-│  ├─ package.json
-│  ├─ prisma
-│  │  ├─ migrations
-│  │  │  ├─ 20260625153532_clean_schema
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260702153314_make_step_optional
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260702153903_make_step_optional
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260702154218_clean_user_progress_relations
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260704170928_user_enrollment_refactor
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260711093838_update_schema_v2
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260716221952_update_uerrole
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260726191907_update_auto_delete
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20260726193512_update2
-│  │  │  │  └─ migration.sql
-│  │  │  └─ migration_lock.toml
-│  │  └─ schema.prisma
-│  ├─ Script_Dev.py
-│  ├─ server.js
-│  └─ src
-│     ├─ Controller
-│     │  ├─ AuthController.js
-│     │  ├─ ProgressController.js
-│     │  ├─ Roadmap_controller.js
-│     │  └─ upload-controller.js
-│     ├─ middlewares
-│     │  ├─ auth.js
-│     │  ├─ upload-middleware.js
-│     │  └─ validate.js
-│     ├─ Router
-│     │  ├─ auth-route.js
-│     │  ├─ main-route.js
-│     │  ├─ progress-route.js
-│     │  └─ upload-route.js
-│     └─ uploads
-├─ Front_End
-│  ├─ dist
-│  │  ├─ assets
-│  │  │  ├─ image-Bb0ph7CR.webp
-│  │  │  ├─ index-CWNcKkJX.css
-│  │  │  └─ index-DmuvW3Jn.js
-│  │  └─ index.html
-│  ├─ eslint.config.js
-│  ├─ index.html
-│  ├─ package-lock.json
-│  ├─ package.json
-│  ├─ README.md
-│  ├─ src
-│  │  ├─ api
-│  │  │  └─ axios.js
-│  │  ├─ App.jsx
-│  │  ├─ Asessts
-│  │  │  ├─ icon-RoadMap_Tech.ico
-│  │  │  └─ image.webp
-│  │  ├─ Components
-│  │  │  ├─ About.jsx
-│  │  │  ├─ Contact.jsx
-│  │  │  ├─ Footer.jsx
-│  │  │  ├─ Hero.jsx
-│  │  │  ├─ NavBar.jsx
-│  │  │  ├─ ProtectedRoute.jsx
-│  │  │  └─ RoadmapSidebar.jsx
-│  │  ├─ data
-│  │  │  └─ frontEndRoadmap.js
-│  │  ├─ index.css
-│  │  ├─ main.jsx
-│  │  ├─ Pages
-│  │  │  ├─ Admin_Dashbord.jsx
-│  │  │  ├─ Login.jsx
-│  │  │  ├─ Profile.jsx
-│  │  │  ├─ Roadmaps.jsx
-│  │  │  ├─ Roadmapview.jsx
-│  │  │  ├─ Signup.jsx
-│  │  │  └─ Terms.jsx
-│  │  ├─ Redux
-│  │  │  └─ UserSlice.js
-│  │  └─ Store
-│  │     └─ Store.js
-│  └─ vite.config.js
-├─ package.json
-└─ README.md
 
-```
+# RoadMap-Tech
+
+Our roadmap platform stands out from the rest; our research revealed that most projects created by learners lack security, so we integrate cybersecurity directly into the roadmaps, ensuring students learn programming based on the "Security by Design" principle.
+
+---
+## 🛠 Tech Stack
+
+### Front-End
+* **Core:** React 19, Vite, React Router DOM
+* **State Management:** Redux Toolkit
+* **Styling & UI:** Tailwind CSS (v4), Framer Motion, Lucide React, Recharts
+* **Utilities:** Axios, EmailJS, React GA4
+
+### Back-End & Database
+* **Runtime & Framework:** Node.js, Express 5
+* **Database & ORM:** PostgreSQL, Prisma ORM
+* **Caching:** Redis, Redis Memory Server
+* **Security & Auth:** JWT, Bcrypt, Helmet, Express Rate Limit, Zod
+
+### Testing
+* **Automation:** Playwright
+* **Code Quality:** ESLint
+
+---
+## 🔒 Security Architecture & Layers
+Security is not an afterthought in our platform; it is embedded into every layer of our backend infrastructure:
+
+* **HTTP Headers Security (Helmet):** Secures the Express application by setting various HTTP headers to defend against common web vulnerabilities like XSS, Clickjacking, and MIME-sniffing.
+
+* **Rate Limiting (Express Rate Limit):** Protects API endpoints against Brute-Force and Denial of Service (DoS) attacks by restricting repeated requests from the same IP address.
+
+* **Strict Input Validation (Zod):** Validates all incoming payloads and user data on the server side to prevent injection attacks and ensure absolute structural integrity.
+
+* **Password Hashing (Bcrypt):** Securely hashes user passwords using strong salt rounds before storing them in the PostgreSQL database.
+
+* **Token-Based Authentication (JWT):** Secures sensitive routes and user sessions using JSON Web Tokens with strict expiration policies.
+* **Strict CORS Configuration:** Restricts cross-origin resource sharing to trusted front-end domains only, blocking unauthorized external API consumption.
