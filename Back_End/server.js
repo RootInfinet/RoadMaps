@@ -18,7 +18,7 @@ app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: process.env.FRONT_URL || "http://localhost:5173", 
+    origin: ["https://road-maps-pi.vercel.app", "http://localhost:5173"],
     credentials: true,
   })
 );
