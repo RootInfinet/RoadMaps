@@ -17,14 +17,10 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(cors({
-    origin: true,
-    credentials: true
+  origin: 'https://road-maps-pi.vercel.app',
+  credentials: true
 }));
 
-app.options(/.*/, cors({
-    origin: true,
-    credentials: true
-}));
 app.use(cookieParser());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
@@ -45,19 +41,7 @@ app.use("/auth", auth_route);
 app.use("/progress", progress_route);
 app.use("/upload", upload_route);
 
-app.use(express.static(path.join(__dirname, "../Front_End/dist")));
 
-app.use((req, res, next) => {
-  if (
-    req.path.startsWith('/auth') || 
-    req.path.startsWith('/progress') || 
-    req.path.startsWith('/upload') ||
-    req.path.startsWith('/api')
-  ) {
-    return next();
-  }
-  res.sendFile(path.join(__dirname, "../Front_End/dist/index.html"));
-});
 app.use((err, req, res, next) => {
   console.error("Global Error Caught:", err.stack);
   const statusCode = err.statusCode || 500;
