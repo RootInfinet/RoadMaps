@@ -94,8 +94,8 @@ const logout = (req, res) => {
 };
 
 const getMe = async (req, res) => {
-  return res.status(200).json({ user: req.user });
-};
+const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+return res.status(200).json({ user: { userId: user.id, name: user.name, email: user.email, role: user.role } });};
 
 const getMyRoadmaps = async (req, res) => {
   const client = await redisClient.getClient();
