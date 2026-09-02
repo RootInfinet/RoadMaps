@@ -18,4 +18,13 @@ const middleware = async (req, res, next) => {
     }
 };
 
-module.exports = middleware;
+const adminAuth = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    return next();
+  }
+  return res
+    .status(403)
+    .json({ error: "Access Denied! This page is for admins only." });
+};
+
+module.exports = { middleware, adminAuth };
