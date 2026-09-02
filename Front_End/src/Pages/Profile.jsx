@@ -75,7 +75,7 @@ function Profile() {
           {/* Avatar + Name Section */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 border-b border-gray-800 pb-6 sm:pb-8">
             <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-green-500 flex items-center justify-center text-2xl sm:text-3xl md:text-4xl font-bold shadow-lg shrink-0">
-              {user.name[0].toUpperCase()}
+              {user?.name[0].toUpperCase()}
             </div>
             <div className="flex-1 text-center sm:text-left">
               {isEditing ? (

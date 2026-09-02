@@ -45,6 +45,7 @@ const login = async (req, res) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
+            partitioned: true
         });
         return res.status(200).json({ 
           user:{
@@ -69,6 +70,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      partitioned: true
     });
 
     return res.status(200).json({
