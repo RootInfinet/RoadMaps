@@ -11,7 +11,7 @@ const main_route = require("./src/Router/main-route");
 const auth_route = require("./src/Router/auth-route");
 const progress_route = require("./src/Router/progress-route");
 const upload_route = require("./src/Router/upload-route");
-
+app.set('trust proxy', 1);
 const app = express();
 
 app.use(
