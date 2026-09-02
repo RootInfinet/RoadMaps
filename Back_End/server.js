@@ -18,19 +18,19 @@ app.set('trust proxy', 1);
 
 app.use(cors())
 app.use(cookieParser());
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, 
-//   max: 100, 
-//   standardHeaders: true,
-//   legacyHeaders: false,
-//   message: { status: 429, message: "Too many requests, please try again later." }
-// });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { status: 429, message: "Too many requests, please try again later." }
+});
 
 app.use(express.json({ limit: '10kb' }));
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
-// app.use(limiter);
+app.use(limiter);
 
 app.use("/", main_route);
 app.use("/auth", auth_route);
