@@ -18,22 +18,22 @@ const loginSchema = z.object({
   password: z.string().min(8, "password must be at leatest 8 charcter"),
 });
 
-const loginLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 5,
-  message:
-    "You have reached the maximum number of attempts. Try again in 1 minute.",
-});
+// const loginLimiter = rateLimit({
+//   windowMs: 1 * 60 * 1000,
+//   max: 5,
+//   message:
+//     "You have reached the maximum number of attempts. Try again in 1 minute.",
+// });
 
-const regestirLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 5,
-  message:
-    "You have reached the maximum number of attempts. Try again in 1 minute.",
-});
+// const regestirLimiter = rateLimit({
+//   windowMs: 1 * 60 * 1000,
+//   max: 5,
+//   message:
+//     "You have reached the maximum number of attempts. Try again in 1 minute.",
+// });
 
-router.post("/register", regestirLimiter, validate(regetershema), authController.register);
-router.post("/login", loginLimiter, validate(loginSchema), authController.login);
+router.post("/register", validate(regetershema), authController.register);
+router.post("/login", validate(loginSchema), authController.login);
 router.post("/logout", authController.logout);
 router.get("/me", middleware, authController.getMe);
 router.get("/my-roadmaps", middleware, authController.getMyRoadmaps);
