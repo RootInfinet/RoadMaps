@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
-  withCredentials: true,
+    baseURL: "https://fluffy-zebra-qvqvx4pq76p4h4q77-5000.app.github.dev",
+    withCredentials: true,
 });
 
 export default api;
