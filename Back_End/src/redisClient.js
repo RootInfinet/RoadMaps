@@ -9,8 +9,13 @@ async function initRedis() {
     if (initPromise) return initPromise;
 
     initPromise = (async () => {
-        const redisServer = await RedisMemoryServer.create();
-        const host = typeof redisServer.getIp === 'function' ? await redisServer.getIp() : '127.0.0.1';
+        const redisServer = await RedisMemoryServer.create({
+            instanceConfig: {
+                port: 6379,
+            },
+        });
+        
+        const host = '127.0.0.1';
         const port = await redisServer.getPort();
 
         redisClient = redis.createClient({
