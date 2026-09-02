@@ -16,7 +16,15 @@ const upload_route = require("./src/Router/upload-route");
 const app = express();
 app.set('trust proxy', 1);
 
-app.use(cors())
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
+
+app.options(/.*/, cors({
+    origin: true,
+    credentials: true
+}));
 app.use(cookieParser());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
