@@ -17,8 +17,10 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(cors({
-  origin: 'https://road-maps-pi.vercel.app',
-  credentials: true
+  origin: ['https://road-maps-pi.vercel.app', 'https://road-maps-pi.vercel.app/'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 
 app.use(cookieParser());
