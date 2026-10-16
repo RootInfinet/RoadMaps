@@ -4,7 +4,7 @@ const router = express.Router();
 const { validate} = require("../middlewares/validate");
 const { middleware} = require("../middlewares/auth");
 
-router.get("/progress/:roadmapId", middleware, progressController.getProgressSummary);
-router.patch("/progress/:roadmapId", middleware, progressController.toggleStep);
+router.get("/progress/:roadmapId",middleware,  progressController.getProgressSummary);
+router.patch("/progress/:roadmapId",middleware,  progressController.toggleStep);
 
 module.exports = router;

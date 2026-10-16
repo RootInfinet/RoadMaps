@@ -9,6 +9,7 @@ function RoadmapSidebar({ isOpen, onClose, stepData, onComplete}) {
   const notes3 = stepData.notes3 || "";
   const notes4 = stepData.notes4 || "";
   const notes5 = stepData.notes5 || "";
+  console.log("RoadmapSidebar rendered with stepData:", stepData);
 
   return (
     <>
@@ -17,11 +18,11 @@ function RoadmapSidebar({ isOpen, onClose, stepData, onComplete}) {
         onClick={onClose}
       />
 
-      <div className="fixed inset-y-0 right-0 w-full max-w-sm sm:max-w-md bg-[#141414] border-l border-zinc-800 z-50 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-2xl max-h-screen overflow-y-auto">
+      <div className="fixed inset-y-0 right-0 w-full max-w-sm sm:max-w-md bg-[#141414] border-l border-zinc-800 p-4 sm:p-5 md:p-6 flex flex-col justify-between shadow-2xl max-h-screen overflow-y-auto z-100">
         <div>
           <div className="flex justify-between items-center pb-3 sm:pb-4 border-b border-zinc-900">
-            <span className="text-[10px] sm:text-xs font-mono text-[#39FF14]">
-              {stepData.number} · {stepData.duration}
+            <span className="text-[30px] sm:text-sm font-mono text-[#39FF14] font-bold">
+              {stepData.id} Step 
             </span>
             <button
               onClick={onClose}
@@ -39,22 +40,22 @@ function RoadmapSidebar({ isOpen, onClose, stepData, onComplete}) {
               {stepData.description}
             </p>
 
-            {stepData.resources?.length > 0 && (
+            {stepData.resoursesLink?.length > 0 && (
               <div className="mt-6 sm:mt-8">
                 <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-500">
                   Recommended Resources
                 </h4>
                 <div className="mt-2 sm:mt-3 space-y-1.5 sm:space-y-2">
-                  {stepData.resources.map((res, index) => (
+                  {stepData.resoursesLink.split(", ").map((link, index) => (
                     <a
                       key={index}
-                      href={res.link}
+                      href={link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-2.5 sm:p-3 bg-[#0A0A0A] rounded-xl border border-zinc-800/60 hover:border-[#39FF14]/40 hover:bg-zinc-900/50 transition-all text-xs sm:text-sm group"
                     >
                       <span className="text-zinc-300 group-hover:text-white truncate mr-2">
-                        {res.name}
+                        {stepData.resourcesName.split(", ").slice(index, index + 1)[0]}
                       </span>
                       <FiExternalLink className="text-zinc-500 group-hover:text-[#39FF14] transition-colors shrink-0" />
                     </a>
@@ -124,7 +125,7 @@ function RoadmapSidebar({ isOpen, onClose, stepData, onComplete}) {
             Practical Assignment
           </h4>
           <p className="text-[10px] sm:text-xs text-zinc-400 leading-relaxed mb-3 sm:mb-4">
-            {stepData.assignment}
+            {stepData.content}
           </p>
 
           <button

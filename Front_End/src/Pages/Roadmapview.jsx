@@ -27,7 +27,6 @@ function Roadmapview() {
 
   const roadmapId = id || 1; 
 
-  // جلب خطوات الرود ماب من الباك إند
   useEffect(() => {
     if (!roadmapId) return;
 
@@ -46,7 +45,6 @@ function Roadmapview() {
     fetchRoadmapDetails();
   }, [roadmapId]);
 
-  // جلب البروجرس الخاص باليوزر (لو حب تفعيله لاحقاً)
   useEffect(() => {
     if (!roadmapId) return;
 
@@ -75,7 +73,6 @@ function Roadmapview() {
     email: user?.email || "Guest@gmail.com"
   };
 
-  // استخراج الـ steps الخام وتقسيمها ديناميكياً لـ Phases (كل 6 خطوات فيس)
   const rawSteps = roadmapData?.steps || (Array.isArray(roadmapData) ? roadmapData : []) || [];
   
   const currentRoadmapPhases = useMemo(() => {
@@ -229,7 +226,6 @@ function Roadmapview() {
 
           <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-[#39FF14]/50 to-transparent mb-6 sm:mb-8 md:mb-10" />
 
-          {/* Phase Title */}
           <h2 className="text-xl sm:text-2xl font-bold text-[#39FF14] mb-1 sm:mb-2 text-center px-2">
             Phase {currentPhase.phase}: {currentPhase.title}
           </h2>
@@ -237,7 +233,6 @@ function Roadmapview() {
             Phase Progress: {phaseCompleted}/{(currentPhase.steps || []).length} steps
           </p>
 
-          {/* Step Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-10 sm:mb-12">
             {(currentPhase.steps || []).map((step, index) => {
               const isCompleted = completedSteps[step.id];
@@ -245,7 +240,7 @@ function Roadmapview() {
               const isLocked = index > 0 && prevStep && !completedSteps[prevStep.id];
 
               return (
-                <div key={step.id || index} className={`p-5 sm:p-6 md:p-7 rounded-2xl border transition-all duration-300 shadow-lg flex flex-col justify-between min-h-[180px] sm:min-h-[200px] md:min-h-[220px] ${
+                <div key={step.id || index} className={`p-5 sm:p-6 md:p-7 rounded-2xl border transition-all duration-300 shadow-lg flex flex-col justify-between min-h-45 sm:min-h-50 md:min-h-55 ${
                   isLocked ? "bg-[#101010]/50 border-zinc-900 opacity-40 pointer-events-none select-none" : isCompleted ? "bg-[#141414] border-[#39FF14]/30" : "bg-[#141414] border-zinc-800 hover:border-[#39FF14]/50"
                 }`}>
                   <div>
@@ -291,7 +286,6 @@ function Roadmapview() {
         <RoadmapSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} stepData={selectedStep} onComplete={markStepAsComplete}/>
       </div>
 
-      {/* Submit Modal */}
       {isSubmitModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md bg-black/70">
           <div className="bg-[#141414] border border-zinc-800 p-4 sm:p-5 md:p-6 rounded-2xl max-w-md w-full shadow-2xl mx-2 sm:mx-0 max-h-[90vh] overflow-y-auto">

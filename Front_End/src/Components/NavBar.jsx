@@ -38,14 +38,24 @@ function NavBar() {
           </li>
 
           {isAuthenticated ? (
-            <li>
-              <Link
-                to="/profile"
-                className="text-sm lg:text-base text-[#BACCB0] hover:text-[#39FF14] transition duration-300 whitespace-nowrap"
-              >
-                Profile
-              </Link>
-            </li>
+            <>
+              <li>
+                <Link
+                  to="/profile"
+                  className="text-sm lg:text-base text-[#BACCB0] hover:text-[#39FF14] transition duration-300 whitespace-nowrap"
+                >
+                  Profile
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/leaderboard"
+                  className="text-sm lg:text-base text-[#BACCB0] hover:text-[#39FF14] transition duration-300 whitespace-nowrap"
+                >
+                  Leaderboard
+                </Link>
+              </li>
+            </>
           ) : (
             <>
               <li>
@@ -69,7 +79,6 @@ function NavBar() {
         </ul>
       </nav>
 
-      {/* Mobile Hamburger Button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         className="md:hidden text-[#39FF14] text-2xl p-2 focus:outline-none cursor-pointer z-110"
@@ -109,13 +118,22 @@ function NavBar() {
           </Link>
 
           {isAuthenticated ? (
-            <Link
-              to="/profile"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base text-[#BACCB0] hover:text-[#39FF14] transition duration-300 py-3 border-b border-zinc-800"
-            >
-              Profile
-            </Link>
+            <>
+              <Link
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-base text-[#BACCB0] hover:text-[#39FF14] transition duration-300 py-3 border-b border-zinc-800"
+              >
+                Profile
+              </Link>
+              <Link
+                to="/leaderboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-base text-[#BACCB0] hover:text-[#39FF14] transition duration-300 py-3 border-b border-zinc-800"
+              >
+                Leaderboard
+              </Link>
+            </>
           ) : (
             <div className="flex flex-col gap-3 pt-4">
               <Link

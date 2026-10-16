@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "windows"]
 }
 
 datasource db {
@@ -13,7 +14,29 @@ model User {
   email        String           @unique
   password     String
   role         String           @default("user")
+  score        Int              @default(0)
   enrollments  UserEnrollment[]
+  badges       UserBadge[]
+}
+
+model Badge {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  icon        String           
+  users       UserBadge[]      
+}
+
+model UserBadge {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  badgeId   Int
+  earnedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId]) 
 }
 
 model Roadmap {
@@ -22,18 +45,21 @@ model Roadmap {
   description String
   isPremium   Boolean          @default(false)
   steps       Step[]           @relation("RoadmapSteps")
+  
   enrollments UserEnrollment[]
 }
 
 model Step {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?  
-  content     String?  
-  notes       String?  
-  isFinished  Boolean  @default(false)
-  roadmapId   Int
-  roadmap     Roadmap  @relation("RoadmapSteps", fields: [roadmapId], references: [id], onDelete: Cascade)
+  id            Int     @id @default(autoincrement())
+  title         String
+  description   String?  
+  content       String?  
+  notes         String?  
+  isFinished    Boolean @default(false)
+  resourcesName String?  
+  resoursesLink String?  
+  roadmapId     Int
+  roadmap       Roadmap  @relation("RoadmapSteps", fields: [roadmapId], references: [id], onDelete: Cascade)
 }
 
 model UserEnrollment {

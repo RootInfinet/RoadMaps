@@ -1,9 +1,18 @@
 const express = require("express");
-const authController = require("../Controller/main-controller");
+const { register,
+  login,
+  logout,
+  getMe,
+  getMyRoadmaps,
+  enrollInRoadmap,
+  submitProjects,
+  GetAvailableRoadmaps,
+  getSteps,
+  updateuser} = require("../Controller/main-controller");
 const progressController = require("../Controller/ProgressController");
 const router = express.Router();
 const { validate, urlSchema } = require("../middlewares/validate");
-const { middleware,adminAuth } = require("../middlewares/auth");
+const { middleware , adminAuth } = require("../middlewares/auth");
 const { z } = require("zod");
 const rateLimit = require("express-rate-limit");
 
@@ -32,16 +41,17 @@ const regestirLimiter = rateLimit({
     "You have reached the maximum number of attempts. Try again in 1 minute.",
 });
 
-router.post("/register",regestirLimiter, validate(regetershema), authController.register);
-router.post("/login",loginLimiter, validate(loginSchema), authController.login);
-router.post("/logout", authController.logout);
-router.get("/me", middleware, authController.getMe);
-router.get("/my-roadmaps", middleware, authController.getMyRoadmaps);
-router.post("/enroll", middleware, authController.enrollInRoadmap);
-router.get("/Avroadmaps", middleware, authController.GetAvailableRoadmaps);
-router.get("/steps/:id", middleware, authController.getSteps);
+router.post("/register",regestirLimiter, validate(regetershema), register);
+router.post("/login",loginLimiter, validate(loginSchema), login);
+router.post("/logout", middleware, logout);
+router.get("/me",middleware, getMe);
+router.get("/my-roadmaps",middleware, getMyRoadmaps);
+router.post("/enroll", middleware, enrollInRoadmap);
+router.get("/Avroadmaps", middleware, GetAvailableRoadmaps);
+router.get("/steps/:id", middleware, getSteps);
+router.put('/update', middleware, updateuser);
 
-router.post("/submit-project", middleware, validate(urlSchema), authController.submitProjects);
+router.post("/submit-project", middleware, validate(urlSchema), submitProjects);
 
 
 module.exports = router;

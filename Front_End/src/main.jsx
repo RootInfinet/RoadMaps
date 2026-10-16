@@ -13,6 +13,7 @@ import { Provider } from 'react-redux';
 import { store} from './Store/Store.js';
 import AdminDashbord from "./Pages/Admin_Dashbord.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx"
+import Leaderboard from "./Pages/Leaderboard.jsx"
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
@@ -25,6 +26,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/roadmaps" element={<Roadmaps />} />
             <Route path="/roadmaps/:id" element={<Roadmapview />} />
             <Route path="/terms" element={<TermsAndPrivacy />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
 <Route 
   path="/admin" 
   element={
