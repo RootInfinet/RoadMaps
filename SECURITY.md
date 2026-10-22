@@ -6,10 +6,9 @@ We are committed to securing our project and releasing regular updates. Below is
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 1.x   | :white_check_mark: |
+| 1.1.x   | :x:                |
+
 
 ## Reporting a Vulnerability
 
