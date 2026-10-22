@@ -16,15 +16,12 @@ import AdminDashbord from "./Pages/Admin_Dashbord.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute.jsx"
 import Leaderboard from "./Pages/Leaderboard.jsx"
 import ReactGA from "react-ga4";
-const Login = lazy(() => import('./Pages/Login.jsx'));
-const Roadmap = lazy(() => import('./Pages/Roadmap.jsx'));
 ReactGA.initialize("G-R0ZEZ3TV4H");
 ReactGA.send({ hitType: "pageview", page: window.location.pathname });
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
         <BrowserRouter>
-        <Suspense fallback={<div className="text-green-500 text-center mt-20">SYSTEM_LOADING...</div>} />
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/login" element={<Login />} />
