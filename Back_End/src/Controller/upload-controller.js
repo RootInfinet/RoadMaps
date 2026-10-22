@@ -11,7 +11,18 @@ function getValidatedUploadPath(filePath) {
     throw new Error("Invalid upload path.");
   }
 
-  return path.resolve(filePath);
+  const resolvedRoot = path.resolve(UPLOAD_ROOT);
+  const resolvedPath = path.resolve(resolvedRoot, filePath);
+  const relativePath = path.relative(resolvedRoot, resolvedPath);
+
+  if (
+    relativePath.startsWith("..") ||
+    path.isAbsolute(relativePath)
+  ) {
+    throw new Error("Upload path is outside the allowed directory.");
+  }
+
+  return resolvedPath;
 }
 
 async function uploadRoadmap(req, res) {
