@@ -96,7 +96,7 @@ function AdminDashboard() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-center border-b border-white/10 pb-6 mb-8 max-w-7xl mx-auto">
         <div>
-          <h2 className='bg-gradient-to-r from-[#00E676] to-blue-500 bg-clip-text text-transparent font-extrabold text-3xl md:text-4xl'>
+          <h2 className='bg-linear-to-r from-[#00E676] to-blue-500 bg-clip-text text-transparent font-extrabold text-3xl md:text-4xl'>
             Admin Dashboard - Security & Ops Hub
           </h2>
           <p className='text-gray-400 text-sm mt-1'>Real-time platform monitoring and dynamic student project requests tracking.</p>

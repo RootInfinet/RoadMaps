@@ -2,9 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const  redisClient  = require('../redisClient');
-const register = async (req, res) => {
+const { getClient } = require('../redisClient');
 
+const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
@@ -22,12 +22,12 @@ const register = async (req, res) => {
       data: { email, name, password: hashedpassword },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: `User Created Successfully. Welcome ${name} to RoadMap`,
     });
   } catch (error) {
     console.error(error); 
-    res.status(500).json({ message: "Internal server error" });  
+    return res.status(500).json({ message: "Internal server error" });  
   }
 };
 
@@ -37,19 +37,18 @@ const login = async (req, res) => {
     
     if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
         const token = jwt.sign(
-            { userId: "admin-id", email: email, role: 'admin' }, 
+            { id: "admin-id", email: email, role: 'admin' }, 
             process.env.SECRET_KEY, 
             { expiresIn: '1h' }
         );
         res.cookie("token", token, {
             httpOnly: true,
             secure: true,
-            sameSite: "none",
-            partitioned: true
+            sameSite: "lax",
         });
         return res.status(200).json({ 
-          user:{
-            message: "Admin access granted", 
+          message: "Admin access granted",
+          user: {
             role: 'admin', 
           }
         });
@@ -69,8 +68,7 @@ const login = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
-      partitioned: true
+      sameSite: "lax",
     });
 
     return res.status(200).json({
@@ -79,37 +77,61 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });  
+    return res.status(500).json({ message: "Internal server error" });  
   }
 };
 
 const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,   
-    sameSite: 'none', 
+    secure: true,   
+    sameSite: 'lax', 
     expires: new Date(0)
   });
   return res.status(200).json({ message: "Logged out successfully" });
 };
 
 const getMe = async (req, res) => {
-const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-return res.status(200).json({ user: { userId: user.id, name: user.name, email: user.email, role: user.role } });};
+  try {
+    const userId = Number(req.user?.id || req.user?.userId);
+    if (!userId || Number.isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID in token" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ 
+      user: { 
+        userId: user.id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role,
+        score: user.score || 0 
+      } 
+    });
+  } catch (error) {
+    console.error("Error in getMe:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 const getMyRoadmaps = async (req, res) => {
-  const client = await redisClient.getClient();
-  const cacheKey = `user_roadmaps:${req.user.id}`;
+  const userId = req.user.id || req.user.userId;
+  const cacheKey = `user_roadmaps:${userId}`;
 
   try {
-    const cachedData = await client.get(cacheKey);
+    const redisClient = await getClient(); 
+    const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
       console.log("Serving user roadmaps from Redis Cache 🚀");
       return res.status(200).json({ roadmaps: JSON.parse(cachedData) });
     }
 
     const enrollments = await prisma.userEnrollment.findMany({
-      where: { userId: req.user.id },
+      where: { userId: Number(userId) },
       include: {
         roadmap: true, 
       },
@@ -121,7 +143,7 @@ const getMyRoadmaps = async (req, res) => {
       return {
         id: e.id,
         roadmapId: e.roadmapId,
-        title: e.title, 
+        title: e.roadmap?.title || "", 
         description: e.roadmap?.description || "",
         status: e.status,
         completedSteps: completed,
@@ -130,7 +152,7 @@ const getMyRoadmaps = async (req, res) => {
       };
     });
 
-    await client.setEx(cacheKey, 1800, JSON.stringify(roadmaps)); 
+    await redisClient.setEx(cacheKey, 1800, JSON.stringify(roadmaps)); 
 
     return res.status(200).json({ roadmaps });
   } catch (error) {
@@ -140,9 +162,9 @@ const getMyRoadmaps = async (req, res) => {
 };
 
 const enrollInRoadmap = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user.id || req.user.userId;
   const { roadmapId } = req.body;
-const client = await redisClient.getClient();
+  const client = await getClient();
 
   if (!roadmapId) {
     return res.status(400).json({ message: "Roadmap ID is required" });
@@ -165,10 +187,10 @@ const client = await redisClient.getClient();
 
     const enrollment = await prisma.userEnrollment.upsert({
       where: {
-        userId_roadmapId: { userId, roadmapId: cleanRoadmapId },
+        userId_roadmapId: { userId: Number(userId), roadmapId: cleanRoadmapId },
       },
       create: {
-        userId,
+        userId: Number(userId),
         roadmapId: cleanRoadmapId,
         status: "in-progress",
         completedSteps: [],
@@ -189,11 +211,11 @@ const client = await redisClient.getClient();
 };
 
 const submitProjects = async (req, res) => {
-  const client = await redisClient.getClient();
+  const client = await getClient();
 
   try {
     const { roadmapId, projects } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.id || req.user.userId;
     
     if (!userId || !roadmapId || !projects || !Array.isArray(projects) || projects.length === 0) {
       return res.status(400).json({ 
@@ -257,7 +279,7 @@ const submitProjects = async (req, res) => {
 };
 
 const GetAvailableRoadmaps = async (req, res) => {
-  const client = await redisClient.getClient();
+  const client = await getClient();
   const cacheKey = "available_roadmaps_all";
 
   try {
@@ -279,7 +301,7 @@ const GetAvailableRoadmaps = async (req, res) => {
 };
 
 const getSteps = async (req, res) => {
-  const client = await redisClient.getClient();
+  const client = await getClient();
   const { id } = req.params;
   const cacheKey = `roadmap_steps:${id}`;
 
@@ -309,6 +331,55 @@ const getSteps = async (req, res) => {
   }
 };
 
+const updateuser = async (req, res) => {
+  try {
+    const { name, email, oldPassword, newPassword } = req.body;
+    const userId = req.user.id || req.user.userId;
+
+    const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+
+    if (newPassword && newPassword.trim() !== "") {
+      if (!oldPassword) {
+        return res.status(400).json({ message: "Please provide your old password" });
+      }
+
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: "Incorrect old password" });
+      }
+
+      const hashedpassword = await bcrypt.hash(newPassword, 10);
+      updateData.password = hashedpassword;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(userId) },
+      data: updateData,
+    });
+
+    return res.status(200).json({
+      message: "Update successful",
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -318,5 +389,6 @@ module.exports = {
   enrollInRoadmap,
   submitProjects,
   GetAvailableRoadmaps,
-  getSteps
+  getSteps,
+  updateuser
 };

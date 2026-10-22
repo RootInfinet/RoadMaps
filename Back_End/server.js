@@ -7,20 +7,22 @@ const cookieParser = require('cookie-parser');
 require("dotenv").config();
 
 require('./src/redisClient');
+const { getClient } = require('./src/redisClient');
 
 const main_route = require("./src/Router/main-route");
 const auth_route = require("./src/Router/auth-route");
 const progress_route = require("./src/Router/progress-route");
 const upload_route = require("./src/Router/upload-route");
+const leaderboard_route = require("./src/Router/leaderboard-route");
 
 const app = express();
 app.set('trust proxy', 1);
 
 app.use(cors({
-  origin: ['https://road-maps-pi.vercel.app', 'https://road-maps-pi.vercel.app/'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+    origin: ['https://road-maps-pi.vercel.app', 'http://localhost:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 
 app.use(cookieParser());
@@ -42,7 +44,7 @@ app.use("/", main_route);
 app.use("/auth", auth_route);
 app.use("/progress", progress_route);
 app.use("/upload", upload_route);
-
+app.use("/leaderboard", leaderboard_route);
 
 app.use((err, req, res, next) => {
   console.error("Global Error Caught:", err.stack);

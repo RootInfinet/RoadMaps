@@ -41,7 +41,7 @@ function Login() {
         }
     } catch (error) {
         alert("Access Denied: Check your credentials");
-        console.error("error while logging in ", error);
+        console.log("error while logging in ", error);
     }
 };
   return (

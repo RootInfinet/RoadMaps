@@ -4,3 +4,9 @@
   background: #39FF14;
   color: #000000;
 }
+
+
+@theme {
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'JetBrains Mono', monospace; 
+}
