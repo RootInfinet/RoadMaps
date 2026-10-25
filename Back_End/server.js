@@ -18,12 +18,17 @@ const leaderboard_route = require("./src/Router/leaderboard-route");
 const app = express();
 app.set('trust proxy', 1);
 
-aapp.use(helmet({
+app.use((req, res, next) => {
+  console.log(`[Request Received] Method: ${req.method} | Path: ${req.url} | Origin: ${req.headers.origin}`);
+  next();
+});
+
+app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
-app.options('*', cors({
+app.options(/(.*)/, cors({
     origin: ['https://road-maps-pi.vercel.app', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
