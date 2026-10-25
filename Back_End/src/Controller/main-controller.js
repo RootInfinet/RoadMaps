@@ -44,7 +44,7 @@ const login = async (req, res) => {
         res.cookie("token", token, {
             httpOnly: true,
             secure: true,
-            sameSite: "lax",
+            sameSite: "none",
         });
         return res.status(200).json({ 
           message: "Admin access granted",
@@ -68,7 +68,7 @@ const login = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     return res.status(200).json({
@@ -77,7 +77,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });  
+    return res.status(500).json({ message: "Internal server error" });   
   }
 };
 
@@ -85,7 +85,7 @@ const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,   
-    sameSite: 'lax', 
+    sameSite: 'none', 
     expires: new Date(0)
   });
   return res.status(200).json({ message: "Logged out successfully" });
