@@ -5,6 +5,7 @@ import RoadmapSidebar from "../Components/RoadmapSidebar";
 import { FiCheck, FiLock } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import api from "../api/axios";
+import { showSweetAlert } from '../Components/alert';
 
 function Roadmapview() { 
   const { id } = useParams(); 
@@ -58,6 +59,7 @@ function Roadmapview() {
             stepsObject[stepId] = true;
           });
           setCompletedSteps(stepsObject);
+          console.log("API Response:", response.data);
         }
       } catch (error) {
         console.error("Error fetching global progress:", error);
@@ -67,6 +69,28 @@ function Roadmapview() {
     fetchAllProgress();
   }, [roadmapId]);
 
+function RoadmapView({ completedSteps, roadmapId }) {
+  
+  useEffect(() => {
+    const completedCount = Object.keys(completedSteps).length;
+    
+    const TARGET_STEPS = 4; 
+
+    if (completedCount === TARGET_STEPS) {
+      const hasShown = localStorage.getItem(`toast_shown_${roadmapId}`);
+      
+      if (!hasShown) {
+        showSweetAlert({
+          title: "Congratulations!",
+          message: "You have completed these steps successfully!",
+          type: "success"
+        });
+        
+        localStorage.setItem(`toast_shown_${roadmapId}`, 'true');
+      }
+    }
+  }, [completedSteps, roadmapId]);
+}
   const currentUser = {
     id: user?.id,
     name: user?.name || "Student",
@@ -108,6 +132,7 @@ function Roadmapview() {
     [activePhase, currentRoadmapPhases]
   );
 
+
   const totalCompleted = allSteps.filter((s) => completedSteps[s.id]).length;
   const phaseCompleted = (currentPhase.steps || []).filter((s) => completedSteps[s.id]).length;
   
@@ -123,11 +148,13 @@ function Roadmapview() {
       setCompletedSteps((prev) => ({ ...prev, [stepId]: true }));
       setIsSidebarOpen(false);
 
-      await api.patch(`/progress/progress/${roadmapId}`, {
-        stepId,
+      await api.patch(`/progress/progress/${Number(roadmapId)}`, {
+        stepId: Number(stepId),
         isDone: true
       });
+
     } catch (error) {
+      console.log(error);
       console.error("Failed to save progress to server:", error);
     }
   };

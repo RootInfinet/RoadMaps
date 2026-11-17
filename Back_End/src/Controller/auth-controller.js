@@ -15,7 +15,12 @@ const GetProjects = async (req, res) => {
     }
 
     const projects = await prisma.projectSubmission.findMany({
-      where: status ? { status: status } : {}, 
+      where: {
+        OR: [
+          { status: "Rejected" },
+          { status: "pending" }
+        ]
+      },
       include: {
         enrollment: {
           include: {
@@ -57,13 +62,20 @@ const updateprojectsstate = async (req, res) => {
   const client = await redisClient.getClient();
   try {
     const { id, status } = req.body; 
+    const project = await prisma.projectSubmission.findUnique({
+  where: { id: Number(id) }
+});
 
+if (!project) {
+  return res.status(404).json({ message: "Project not found" });
+}
     const updatedProject = await prisma.projectSubmission.update({ 
-      where: { id: Number(id) },
-      data: { status: status }
-    });
+  where: { id: Number(id) },
+  data: { status: status }
+});
 
 
+  
     await client.del('admin_projects:all');
     await client.del('admin_projects:PENDING');
     await client.del('admin_projects:APPROVED');

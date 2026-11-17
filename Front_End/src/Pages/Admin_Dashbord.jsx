@@ -13,7 +13,7 @@ function AdminDashboard() {
   const fileInputRef = useRef(null)
 
   const [platformStats, setPlatformStats] = useState({
-    totalUsers: '---', 
+    totalUsers: '2', 
     activeRoadmaps: '4',
     serverStatus: 'Online 🟢',
     securityShield: 'Active'
@@ -93,7 +93,6 @@ function AdminDashboard() {
   return (
     <div className="bg-[#0A0A0A] min-h-screen text-white font-sans p-6">
       
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-center border-b border-white/10 pb-6 mb-8 max-w-7xl mx-auto">
         <div>
           <h2 className='bg-linear-to-r from-[#00E676] to-blue-500 bg-clip-text text-transparent font-extrabold text-3xl md:text-4xl'>
@@ -102,7 +101,6 @@ function AdminDashboard() {
           <p className='text-gray-400 text-sm mt-1'>Real-time platform monitoring and dynamic student project requests tracking.</p>
         </div>
         
-        {/* Navigation Tabs */}
         <div className="flex gap-3 mt-4 md:mt-0">
           <button 
             onClick={() => setActiveTab('projects')}
@@ -122,7 +120,6 @@ function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-between">
             <div>
@@ -161,7 +158,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Tab 1: Student Projects */}
         {activeTab === 'projects' && (
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -181,7 +177,10 @@ function AdminDashboard() {
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-start">
                         <span className="font-extrabold text-xl text-white">{proj.enrollment?.user?.name || "Student"}</span>
-                        <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">{proj.projectTitle}</span>
+                        <span className="text-[10px] px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">{proj.projectTitle}</span>
+                      </div>
+                      <div className="flex justify-between items-start">
+                        <span className="font-extrabold text-xl text-white">{proj.enrollment?.user?.email || "Student"}</span>
                       </div>
                       
                       <a 
@@ -230,7 +229,6 @@ function AdminDashboard() {
           </div>
         )}
 
-        {/* Tab 2: Upload Roadmap File */}
         {activeTab === 'importer' && (
           <div className="p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 max-w-3xl mx-auto shadow-2xl">
             <h3 className="text-2xl font-bold text-[#00E676] mb-2">📁 Upload Roadmap File (JSON / TXT)</h3>

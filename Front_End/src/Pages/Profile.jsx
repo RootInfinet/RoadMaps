@@ -118,16 +118,7 @@ function Profile() {
               </div>
             </div>
 
-            <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto bg-zinc-950/80 border border-zinc-800/80 px-5 py-3 rounded-xl gap-2">
-              <div>
-                <span className="text-[10px] text-zinc-500 block uppercase tracking-widest text-center sm:text-right">
-                  Security Score
-                </span>
-                <span className="text-[#00FF66] font-extrabold text-lg sm:text-xl tracking-wider">
-                  {user.score !== undefined ? `${user.score} PTS` : "0 PTS"}
-                </span>
-              </div>
-            </div>
+            
           </div>
 
           {isEditing && (

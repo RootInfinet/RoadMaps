@@ -5,10 +5,16 @@ const getProgressSummary = async (req, res) => {
   const client = await redisClient.getClient();
 
   try {
-    const roadmapId = parseInt(req.params.roadmapId, 10);
-    const userId = req.user.id;
-    const cacheKey = `progress_summary:${userId}:${roadmapId}`;
+    const UserId = req.user?.id || req.user?.userId;
+    
+    if (!UserId) {
+      return res.status(401).json({ message: "Unauthorized: User ID is missing" });
+    }
 
+    const userId = Number(UserId);
+    const roadmapId = parseInt(req.params.roadmapId, 10);
+    const cacheKey = `progress_summary:${userId}:${roadmapId}`;
+    
     const cachedData = await client.get(cacheKey);
     if (cachedData) {
       console.log("Serving progress summary from Redis Cache 🚀");
@@ -30,7 +36,6 @@ const getProgressSummary = async (req, res) => {
     }
 
     const responseData = { completedSteps: enrollment.completedSteps };
-
     await client.setEx(cacheKey, 3600, JSON.stringify(responseData));
 
     return res.status(200).json(responseData);
@@ -41,56 +46,61 @@ const getProgressSummary = async (req, res) => {
 };
 
 const toggleStep = async (req, res) => {
-  const client = await redisClient.getClient();
   try {
+     const userId = req.user?.userId || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const roadmapId = parseInt(req.params.roadmapId, 10);
     const { stepId, isDone } = req.body;
-    const userId = req.user.id;
 
-    if (Number.isNaN(roadmapId) || !stepId) {
+    if (!roadmapId || !stepId) {
       return res.status(400).json({ message: "roadmapId and stepId are required" });
     }
 
     let enrollment = await prisma.userEnrollment.findUnique({
       where: {
-        userId_roadmapId: { 
-          userId: userId, 
-          roadmapId: roadmapId 
-        },
-      },
+        userId_roadmapId: {
+          userId: userId,
+          roadmapId: roadmapId
+        }
+      }
     });
 
     if (!enrollment) {
-      return res.status(404).json({ message: "User is not enrolled in this roadmap" });
-    }
-
-    let completed = Array.isArray(enrollment.completedSteps)
-      ? [...enrollment.completedSteps]
-      : [];
-
-    if (isDone) {
-      if (!completed.includes(stepId)) completed.push(stepId);
+      enrollment = await prisma.userEnrollment.create({
+        data: {
+          userId: userId,
+          roadmapId: roadmapId,
+          status: "in-progress",
+          completedSteps: [stepId]
+        }
+      });
     } else {
-      completed = completed.filter((id) => id !== stepId);
+      let completedSteps = Array.isArray(enrollment.completedSteps) ? [...enrollment.completedSteps] : [];
+      
+      if (isDone && !completedSteps.includes(stepId)) {
+        completedSteps.push(stepId);
+      } else if (!isDone) {
+        completedSteps = completedSteps.filter(id => id !== stepId);
+      }
+
+      enrollment = await prisma.userEnrollment.update({
+        where: {
+          userId_roadmapId: {
+            userId: userId,
+            roadmapId: roadmapId
+          }
+        },
+        data: { completedSteps }
+      });
     }
 
-    const updated = await prisma.userEnrollment.update({
-      where: { id: enrollment.id },
-      data: {
-        completedSteps: completed,
-        status: completed.length > 0 ? "in-progress" : "not-started",
-      },
-    });
-
+    const client = await redisClient.getClient();
     await client.del(`progress_summary:${userId}:${roadmapId}`);
-    await client.del(`user_roadmaps:${userId}`);
 
-    return res.status(200).json({
-      completedSteps: updated.completedSteps,
-      completedCount: updated.completedSteps.length,
-      status: updated.status
-    });
-
+    return res.status(200).json({ success: true, completedSteps: enrollment.completedSteps });
   } catch (error) {
     console.error("Error in toggleStep:", error);
     return res.status(500).json({ message: "Error updating progress" });

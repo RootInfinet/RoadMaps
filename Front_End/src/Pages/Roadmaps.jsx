@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/NavBar';
+import React, { useState, useEffect } from 'react';
 import { FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
@@ -28,7 +28,7 @@ function Roadmaps() {
   const handleStartRoadmap = async (roadmap) => {
     try {
       await api.post("/enroll", {
-        roadmapId: String(roadmap.id), 
+        roadmapId: Number(roadmap.id), 
         roadmapTitle: roadmap.title,   
         status: "in-progress"
       }, {
