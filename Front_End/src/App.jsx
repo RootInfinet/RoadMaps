@@ -6,6 +6,8 @@ import About from "./Components/About";
 import Contact from "./Components/Contact";
 import Footer from "./Components/Footer";
 import ReactGA from "react-ga4";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const TRACKING_ID = "G-R02F73TV4H";
 ReactGA.initialize(TRACKING_ID);
@@ -114,6 +116,7 @@ function App() {
         >
           <Footer />
         </motion.div>
+        <ToastContainer />
       </main>
     </div>
   );

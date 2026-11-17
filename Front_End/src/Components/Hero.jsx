@@ -15,9 +15,9 @@ function Hero() {
                 scalable intelligence. Rooted in logic, branching into infinity.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center w-full max-w-xs sm:max-w-none">
-                <button className="w-full sm:w-auto bg-[#39FF14] px-10 sm:px-13 py-2.5 sm:py-3 text-black hover:bg-[#0A0A0A] hover:text-[#39FF14] duration-300 border hover:border-[#39FF14] cursor-pointer text-sm sm:text-base">
+                <Link to="/roadmaps" className="w-full sm:w-auto bg-[#39FF14] px-10 sm:px-13 py-2.5 sm:py-3 text-black hover:bg-[#0A0A0A] hover:text-[#39FF14] duration-300 border hover:border-[#39FF14] cursor-pointer text-sm sm:text-base">
                     Get Started
-                </button>
+                </Link>
                 <Link to="/roadmaps" className="w-full sm:w-auto text-center px-3 py-2.5 sm:py-2 bg-[#0A0A0A] text-[#00FFFF] duration-300 border border-[#00FFFF] cursor-pointer inline-block text-sm sm:text-base">
                     Roadmaps
                 </Link>
