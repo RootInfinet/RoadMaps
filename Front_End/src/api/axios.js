@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://intake-representation-specializing-medal.trycloudflare.com ',
+  baseURL: 'https://cabinets-authentication-nikon-responsible.trycloudflare.com',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
